@@ -1,0 +1,85 @@
+---
+title: "ECON 4753 Exam Bonus"
+author: "Sophie Hill"
+date: "10/19/2021"
+output: word_document
+---
+
+```{r}
+##clear the R environment
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+gc() #free up memrory and report the memory usage.
+getwd()
+
+if (!require(BatchGetSymbols)) install.packages('BatchGetSymbols')
+
+myShare<-"WMT"
+myStartDate<-'2010-01-01'
+myEndDate<-'2020-12-31'
+freq.data<-'monthly'
+
+l.out <- BatchGetSymbols(tickers = myShare, 
+                         first.date = myStartDate,
+                         last.date = myEndDate, 
+                         freq.data = freq.data) 
+l.out
+data<-l.out$df.tickers
+
+#install.packages("tidyverse")
+#install.packages("zoo")
+library(zoo)
+library(tidyverse)
+##a,b,c
+p=ts(data$price.close)
+```
+
+
+```{r}
+#1) For full sample, generate and print out autocorrelation function for close price till order 8. 
+rho=acf(p,lag.max = 8)
+rho
+
+#2)	What is the value of autocorrelation coefficient of order 1? Is it significantly different from zero?
+#The autocorrelation coeff of order #1 is .947. It is is very different from the autocorr of 0 which is 1.
+
+#3) Calculate Q-statistic of order 3 to test whether there is autocorrelation till order 3 in data.
+Box.test(p,lag = 3,type = c("Ljung-Box"))
+#p-value indicates significance and the Q-stat infers that there is autocorrelation.
+
+#4) Estimate Model A: Moving average models MA(3), MA(6), and MA(12). Plot the estimated value and actual values.
+ma<-data %>%
+  select(ref.date,may=price.close)%>%
+  mutate(may3=rollmean(may, k=3, fill=NA, align = "right"),
+         may6=rollmean(may, k=6, fill=NA, align = "right"),
+         may12=rollmean(may, k=12, fill=NA, align = "right"))
+        ma
+
+ma %>%
+  gather(metric, value, may:may12) %>%
+  ggplot(aes(ref.date, value, color = metric)) +
+  geom_line()
+
+
+#5) Estimate Model B: Simple exponential smoothing model. α=0.2
+yt_hat_simple_exp<- HoltWinters(p, alpha=0.2, beta=FALSE, gamma=FALSE)
+print(yt_hat_simple_exp$fitted) 
+
+
+#6) Use the above models to forecast July 2020 to Dec. 2020. Evaluate both model MA(3) and model B using MSE. Discuss why we obtain a relative large MSE for both models.
+datamse <- data.frame(actual=ma$may[126:132],
+                   predicted=ma$may3[125:131])
+print(mean((datamse$actual-datamse$predicted)^2))
+#[1] 81.54174
+
+datamse2 <- data.frame(actual=ma$may3[126:132],
+                      predicted=yt_hat_simple_exp$fitted[125:131,1])
+print(mean((datamse2$actual-datamse2$predicted)^2))
+#[1] 122.2113
+
+#MSE allows us to determine how good the model is at estimating the actual values. The closer the MSE is to zero, the more accurate our forecasting models are. Additionally, the models are using moving averages for the three orders (3, 6, and 12), which calculates a series of averages throughout the dataset. Moving Average models only include the most recent and relevant data (using "k" period to determining the number of terms in moving average... where forecast value for next period = actual values at period t+1, all divided by k). Thus, Moving Average models do not necessarily account for trends and seasonality to the fullest extent in the data, despite their focus on short0-term relevant data.
+
+
+view(data)
+
+```
+
