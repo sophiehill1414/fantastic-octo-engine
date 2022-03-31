@@ -1,0 +1,58 @@
+---
+title: "econ 4743 practice"
+author: "Sophie Hill"
+date: "11/11/2021"
+output: word_document
+---
+
+```{r}
+library(readxl)
+cps <- read_excel("Downloads/cps12.xlsx")
+
+#Model 1
+Model1<-lm(ahe~bachelor+female,data=cps)
+Model1
+summary(Model1)
+
+#Model 2
+Model2<-lm(ahe~bachelor+female+age,data=cps)
+Model2
+summary(Model1)
+
+#What is your estimated model?
+```
+```{r}
+
+#Use the regression in model 1:
+
+# 1). Do workers with college degrees earn more, on average, than workers with only high school degrees? How much more? Is this difference significant?
+
+#Yes, they earn $8.31 more than high school degree holders.T-stat is more than 1.96 (is 36.14), so yes, it is statistically significant.
+
+# 2). Do men earn more than women, on average? How much more?
+
+#Yes, men earn $3.85 more than women. 
+
+```
+
+
+```{r}
+#Use model 2:
+
+# 3). Is age an important determinant of earnings? Explain.
+
+#Age coef is 0.51 and the t-stat is 12.91, with a low p-value. Variances in wages due to age (all other factors held equal) are less than $1. So, as compared to the other variables, age is not as important of a factor. 
+# 4). Sally is a 29- year-old female college graduate. Betsy is a 34-year-old female college graduate. Predict Sally’s and Betsy’s earnings. 
+
+#AHE=1.86+8.31B-3.8F+.51AGE
+
+#Sally: age=29, F=1, B=1
+#Betsy: age=34, F=1, B=1
+
+#...Just plug it in.
+
+# 5). High school Male Base group? B=0, F=0...male high school graduate...AHE=1.86+0.5AGE
+# 6). High school female Base group #2? B=0, F=1...AHE=1.86-3.81+0.5AGE
+#Also College Male and College Female
+```
+

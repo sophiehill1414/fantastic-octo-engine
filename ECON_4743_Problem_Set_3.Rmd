@@ -1,0 +1,35 @@
+---
+title: "ECON_4743_Problem_Set_3"
+author: "Sophie Hill"
+date: "3/4/2021"
+output: word_document
+---
+
+```{r}
+library("psych")
+library("knitr")
+names(cps)
+head(cps)
+```
+
+```{r}
+cps$EXPER30<- cps$exper-30   
+plot(cps$wage ~ EXPER30, xlab="Exprience30", ylab="Wage rate", 
+      main="Figure 1. Scatter diagram for WAGE and EXPER30 ", col="hotpink" )
+```
+
+```{r}
+cps$EXPER30sq<- cps$EXPER30^2  
+model.1<- lm(cps$wage ~ cps$EXPER30sq) #estimate the model
+summary(model.1)$coef  #show some of the results
+summary(model.1)
+```
+```{r}
+b1= as.numeric(coef(model.1)[1])
+b2= as.numeric(coef(model.1)[2])
+plot(cps$EXPER30,cps$wage,xlab="Exper30", ylab="Wage rate", 
+        col="hotpink", main="Scatter and Fitted"  )
+curve(b1+ b2*x^2, from=min(cps$EXPER30), to= max(cps$EXPER30), add=TRUE, col="lightblue", lwd=2)
+
+```
+
