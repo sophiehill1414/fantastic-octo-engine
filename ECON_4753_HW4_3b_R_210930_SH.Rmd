@@ -1,0 +1,25 @@
+---
+title: "ECON_4753_HW_4"
+author: "Sophie Hill"
+date: "9/30/2021"
+output: word_document
+---
+
+```{r}
+
+#First observations ignored, lower bound ranges used for variable "Income"
+library(readxl)
+data <- read_excel("Downloads/HW4_210930_SH.xlsx")
+View(data)
+summary(data)
+
+#Correlations:
+cor(data$Income,data$Reading)
+#[1] 0.9674168
+cor(data$Income,data$Writing)
+#[1] 0.9802053
+cor(data$Income,data$Math)
+#[1] 0.9757265
+
+```
+
