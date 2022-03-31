@@ -1,0 +1,70 @@
+---
+title: "Data_Analysis_1_200621"
+author: "Sophie Hill"
+date: "6/21/20"
+output: 
+---
+
+```{r}
+
+GDP_trade<-read.csv("GDP_Trade.csv",header=TRUE)
+class(GDP_trade$Location)
+length(GDP_trade)
+ncol(GDP_trade)
+length(GDP_trade$Year)
+nrow(GDP_trade)
+unique(GDP_trade$Location)
+year<-GDP_trade$Year
+head(sort(year,decreasing = TRUE))
+6>5
+"Learning R"=="learning R"
+r<-6>5
+r
+class(r)
+x<-c(4,5,1,2,0)
+x
+x>=2
+x!=1
+x>2|x<=1
+x>0&x<=2
+sum(x>0&x<=2)
+GDP<-GDP_trade[,"GDP"]
+head(GDP)
+GDP_trade_1_5<-GDP_trade[1:5,]
+GDP_trade_1_5
+GDP_trade_1_5<-GDP_trade[1:5,"GDP"]
+GDP_trade_1_5
+GDP_Oman<-GDP_trade[GDP_trade$Location=="Oman","GDP"]
+head(GDP_Oman)
+mean(GDP_trade$GDP,na.rm = TRUE)
+mean(GDP_trade[GDP_trade$Location=="Oman","GDP"],na.rm = TRUE)
+mean(GDP_trade$GDP[GDP_trade$Location=="Oman"],na.rm=TRUE)
+
+
+
+mean(GDP_trade[GDP_trade$Location=="Thailand","GDP"],na.rm = TRUE)
+
+mean(GDP_trade[GDP_trade$Location=="United States","GDP"],na.rm = TRUE)
+
+
+
+GDP_trade$High_GDP<-ifelse(GDP_trade$GDP>=mean(GDP_trade$GDP,na.rm=TRUE),1,0)
+tapply(GDP_trade$GDP,GDP_trade$Year,mean,na.rm=TRUE)
+install.packages("ggplot2")
+library("ggplot2")
+GDP_trade_OT<-GDP_trade[GDP_trade$Location=="Oman"|GDP_trade$Location=="Thailand",]
+GDP_trade_OT<-GDP_trade_OT[complete.cases(GDP_trade_OT$GDP),]
+ggplot(GDP_trade_OT,aes(x=Year,y=GDP))+geom_point(aes(color=Location))+scale_color_manual(values=c("purple","green"))+labs(x="Year",y="Gross Domestic Product",title = "Gross Domestic Product by Year for Oman and Thailand")
+ggsave("Year_GDP_Plot_200622.pdf",plot=last_plot(),width=5, height=5,units="in")
+
+
+
+GDP_trade_US_Jordan<-GDP_trade[GDP_trade$Location=="United States"|GDP_trade$Location=="Jordan",]
+GDP_trade_US_Jordan<-GDP_trade_US_Jordan[complete.cases(GDP_trade_US_Jordan$GDP),]
+ggplot(GDP_trade_US_Jordan,aes(x=Year,y=GDP))+geom_point(aes(color=Location))+scale_color_manual(values=c("pink","blue"))+labs(x="Year",y="Gross Domestic Product",title="Gross Domestic Product by Year for the United States and Jordan")
+ggsave("Year_GDP_Plot_US_Jordan_200622_SH.pdf",plot=last_plot(),width=5,height=5,units="in")
+
+install.packages("knitr",repos = "http://cran.us.r-project.org")
+library(knitr)
+```
+

@@ -1,0 +1,65 @@
+---
+title: "Precept_3_200625_SH"
+output: word_document
+---
+
+#Summarize the data
+```{r}
+library(tidyverse)
+senate<-read.csv("senate.csv",header=TRUE)
+dim(senate)
+senate%>%
+  select(treatment,bill_prop)%>%
+  filter(treatment==1)%>%
+  summarize(avg_treat=mean(bill_prop))
+```
+
+
+#Mean proportion of bills passed for both the treatment and control groups
+```{r}
+senate%>%
+  select(treatment,bill_prop)%>%
+  group_by(treatment)%>%
+  summarize(avg=mean(bill_prop))
+tapply(senate$bill_prop,senate$treatment,mean)
+```
+
+
+#Create a new variable that takes on the average proportion of bills passed for the treatment and control groups
+```{r}
+senate%>%
+  select(treatment,bill_prop)%>%
+  group_by(treatment)%>%
+  mutate(avg=mean(bill_prop))
+```
+
+#Compare with base R:
+```{r}
+senate_avg<-ifelse(senate$treatment==1,mean(senate$bill_prop[senate$treatment==1]),mean(senate$bill_prop[senate$treatment==0]))
+```
+
+
+#Calculate the average causal treatment effect of being assigned to 2-years or 4-years in the senate on the proportion of bills a senate passes compared to bills proposed. 
+```{r}
+means<-senate%>%
+  group_by(treatment)%>%
+  summarize(avg=mean(bill_prop))
+means$avg[means$treatment==1]-means$avg[means$treatment==0]
+```
+
+#Does the treatment effect differ between Democrats and Republicans?
+```{r}
+demtreat<-mean(senate$bill_prop[senate$party==1&senate$treatment==1])
+demtreat
+repubtreat<-mean(senate$bill_prop[senate$party==0&senate$treatment==1])
+repubtreat
+demcon<-mean(senate$bill_prop[senate$party==1&senate$treatment==0])
+demcon
+repubcon<-mean(senate$bill_prop[senate$party==0&senate$treatment==0])
+repubcon
+avg_treat_party<-demtreat-repubtreat
+avg_treat_party
+
+```
+
+

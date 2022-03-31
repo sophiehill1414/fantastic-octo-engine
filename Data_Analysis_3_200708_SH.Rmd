@@ -1,0 +1,103 @@
+---
+title: "Data Analysis 3"
+output: word_document
+---
+library(tidyverse)
+library(ggplot2)
+```{r}
+#1. Subset the data to the following countries: the United States, China, Mexico, France, Nigeria, and Mozambique. Using this data, generate 4 cross-national, time series plots of the trade value variable, one for each export sector (total merchandise, agriculture, manufacturing, & fuel and mining products). 
+
+Trade_CNTS<-read.csv("trade_CNTS.csv",header=TRUE)
+New_Trade<-subset(Trade_CNTS,Trade_CNTS$Reporting.Economy%in%c("United States of America","China","Mexico","France","Nigeria","Mozambique"))
+
+plot(New_Trade$Year[New_Trade$Product.Sector=="Total merchandise"], New_Trade$Value[New_Trade$Product.Sector=="Total merchandise"], xlab="Year",ylab="Trade Value",main = "Total Merchandise Time Series",xlim=c(1980,2018))
+
+plot(New_Trade$Year[New_Trade$Product.Sector=="Agricultural products"], New_Trade$Value[New_Trade$Product.Sector=="Agricultural products"], xlab = "Year", ylab = "Trade Value", main = "Agricultural Products Time Series")
+
+plot(New_Trade$Year[New_Trade$Product.Sector=="Manufactures"], New_Trade$Value[New_Trade$Product.Sector=="Manufactures"], xlab = "Year", ylab = "Trade Value", main = "Manufacturing Time Series")
+
+#plot(New_Trade$Year[New_Trade$Product.Sector=="Fuels and mining products"], New_Trade$Value[New_Trade$Product.Sector=="Manufactures"], xlab = "Year", ylab = "Trade Value", main = "Fuels and mining) products")
+
+```
+
+library(tidyverse)
+library(ggplot2)
+```{r}
+#2. Using the same data from question 1, which country or countries experienced the greatest growth in exports between 1980 and 2018 in each of the three subsectors? 
+library(tidyverse)
+library(ggplot2)
+trade_total<-New_Trade[New_Trade$Product.Sector=="Agricultural products",]
+trade_growth<-trade_total%>%
+  select(Year,Value,Reporting.Economy)%>%
+  group_by(Reporting.Economy)%>%
+  filter(Year==2018|Year==1980)%>%
+  mutate(growth=(Value[Year==2018]-Value[Year==1980])/Value[Year==1980])
+max(trade_growth$growth)
+trade_growth[trade_growth$growth==max(trade_growth$growth),"Reporting.Economy"]
+
+New_Trade<-subset(Trade_CNTS,Trade_CNTS$Reporting.Economy%in%c("United States of America","China","Mexico","France","Nigeria"))
+trade_total<-New_Trade[New_Trade$Product.Sector=="Manufactures",]
+trade_growth<-trade_total%>%
+  select(Year,Value,Reporting.Economy)%>%
+  group_by(Reporting.Economy)%>%
+  filter(Year==2018|Year==1980)%>%
+  mutate(growth=(Value[Year==2018]-Value[Year==1980])/Value[Year==1980])
+max(trade_growth$growth)
+trade_growth[trade_growth$growth==max(trade_growth$growth),"Reporting.Economy"]
+
+trade_total_manufac<-New_Trade[New_Trade$Product.Sector=="Fuels and mining",]
+trade_growth<-trade_total%>%
+  select(Year,Value,Reporting.Economy)%>%
+  group_by(Reporting.Economy)%>%
+  filter(Year==2018|Year==1980)%>%
+  mutate(growth=(Value[Year==2018]-Value[Year==1980])/Value[Year==1980])
+max(trade_growth$growth)
+trade_growth[trade_growth$growth==max(trade_growth$growth),"Reporting.Economy"]
+```
+
+
+
+```{r}
+#3. Using the entire dataset, which of the three subsectors of the export market (agricultural, manufacturing, or fuel and mining) experienced the largest growth between 1980 and 2018?
+
+sector_agriculture<-Trade_CNTS[Trade_CNTS$Product.Sector %in% c("Agricultural products"),]
+sector_fuel_min<-Trade_CNTS[Trade_CNTS$Product.Sector %in% c("Fuels and mining products"),]
+sector_manufacturing<- Trade_CNTS[Trade_CNTS$Product.Sector %in% c("Manufactures"),]
+agriculture2018<-sector_agriculture$Value[sector_agriculture$Year=="2018"]
+agriculture1980<-sector_agriculture$Value[sector_agriculture$Year=="1980"]
+
+manufacturing2018<-sector_manufacturing$Value[sector_manufacturing$Year=="2018"]
+manufacturing1980<-sector_manufacturing$Value[sector_manufacturing$Year=="1980"]
+
+
+fuelmin2018<-sector_fuel_min$Value[sector_fuel_min$Year=="2018"]
+fuelmin1980<-sector_fuel_min$Value[sector_fuel_min$Year=="1980"]
+sum(agriculture2018)-sum(agriculture1980) 
+
+sum(manufacturing2018)-sum(manufacturing1980) 
+
+sum(fuelmin2018)-sum(fuelmin1980) 
+
+```
+
+
+```{r}
+#4. Using the entire dataset, which country was the largest exporter (i.e. “total merchandise”) in 1980? And in 2018?
+
+total_merchandise<-Trade_CNTS[Trade_CNTS$Product.Sector== "Total merchandise",]
+
+total_merchandise1980<-subset(total_merchandise, Year== "1980")
+
+which.max(total_merchandise1980$Value)
+
+total_merchandise1980[28,]
+
+
+total_merchandise2018<- subset(total_merchandise, Year== "2018")
+
+which.max(total_merchandise$Value)
+
+total_merchandise2018[9,]
+
+```
+

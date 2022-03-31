@@ -1,0 +1,33 @@
+---
+title: "Untitled"
+output: word_document
+---
+install.packages(tidyverse)
+```{r}
+trade_CNTS<-read.csv("trade_CNTS.csv",header=TRUE)
+library(tidyverse)
+summary(trade_CNTS)
+trade_1970<-subset(trade_CNTS,Year==1970)
+mean(trade_1970$Value)
+trade_2018<-subset(trade_CNTS,Year==2018)
+mean(trade_2018$Value)
+```
+
+
+```{r}
+sum(trade_1970$Value)
+sum(trade_2018$Value)
+```
+
+
+```{r}
+var(trade_1970$Value)
+var(trade_2018$Value)
+var(trade_2018$Value)-var(trade_1970$Value)
+```
+```{r}
+hist(trade_2018$Value)
+hist(trade_1970$Value)
+```
+
+

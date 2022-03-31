@@ -1,0 +1,39 @@
+---
+title: "Data Analysis 4"
+author: "Sophie Hill"
+date: "7/14/2020"
+output: word_document
+---
+```{r}
+gdp_trade_export<-read.csv("GdpTradeExport.csv")
+#View(gdp_trade_export)
+```
+
+```{r}
+#Question 1:
+gdp_trade_linear<-lm(formula=GDP~Trade,data=gdp_trade_export)
+lm(formula=GDP~Trade,data=gdp_trade_export)
+summary(gdp_trade_linear)
+summary(gdp_trade_linear)$coefficient
+#Trade will increase by 94.429 (Trade) percent (GDP) for every 17755 units(Intercept) increased in GDP per capita.
+```
+```{r}
+#Question 2
+gdp_trade_industry<-lm(formula = GDP~Trade+Industry,data=gdp_trade_export)
+lm(formula = GDP~Trade+Industry,data=gdp_trade_export)
+summary(gdp_trade_industry)
+summary(gdp_trade_industry)$coefficient
+#The intercept is 1.002947e+04, the intercept of trade is 1.434189e+02, and the intercept of Industry is 1.462029e-08. 
+```
+
+
+
+
+
+
+
+
+
+
+
+
