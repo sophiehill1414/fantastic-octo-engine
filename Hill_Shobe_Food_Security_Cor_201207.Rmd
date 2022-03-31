@@ -1,0 +1,446 @@
+---
+title: "FSData"
+author: "Sophie Hill"
+date: "12/7/2020"
+output:
+  word_document: default
+  pdf_document: default
+---
+```{r}
+#load libraries
+library(tidyverse) #masks stats::filter, lag
+library(psych) #masks ggpplot2:: %+%, alpha
+library(GGally) #masks dbplyr::nasa
+library(readxl)
+library(ggcorrplot)
+library(ggplot2)
+library(corrplot)
+FSdata12 <- read_excel("~/Downloads/FSdata12.xlsx")
+
+library(tidyverse)
+
+#Food1: Did you worry that food at home would run out before you got money to buy more?
+FS1<-FSdata12%>%
+  select(FOOD1,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS1cor<-cor(FS1, use = "complete.obs")
+FS1cor
+p.mat1<-cor_pmat(FSdata12)
+ggcorrplot(FS1cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: Food1 is negatively correlated with gender
+
+#Food2: Did the food that you bought run out, and you didn’t have money to get more?
+FS2<-FSdata12%>%
+  select(FOOD2,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS2cor<-cor(FS2, use = "complete.obs")
+ggcorrplot(FS2cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: Food2 is negatively correlated with gender
+
+#Food3: Did your meals only include a few kinds of cheap foods because you were running out of money to buy food?
+FS3<-FSdata12%>%
+  select(FOOD3,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS3cor<-cor(FS3, use = "complete.obs")
+ggcorrplot(FS3cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: Food3 is negatively correlated with gender
+
+#Food4: How often were you not able to eat a balanced meal because you didn’t have enough money?
+FS4<-FSdata12%>%
+  select(FOOD4,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS4cor<-cor(FS4, use = "complete.obs")
+ggcorrplot(FS4cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: Food4 is positively correlated with gender
+
+#Food5: Did you have to eat less because you didn’t have enough money to buy food?
+FS5<-FSdata12%>%
+  select(FOOD5,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS5cor<-cor(FS5, use = "complete.obs")
+ggcorrplot(FS5cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: None
+
+#Food6: Has the size of your meals been cut because you didn’t have enough money for food? 
+FS6<-FSdata12%>%
+  select(FOOD6,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS6cor<-cor(FS6, use = "complete.obs")
+ggcorrplot(FS6cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: Food6 is negatively correlated with gender
+
+#Food7: Did you have to skip a meal because you didn’t have enough money for food?
+FS7<-FSdata12%>%
+  select(FOOD7,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS7cor<-cor(FS7, use = "complete.obs")
+ggcorrplot(FS7cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: Food7 is positively correlated with gender
+
+#Food8: Were you hungry but didn’t eat because you didn’t have enough food?
+FS8<-FSdata12%>%
+  select(FOOD8,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS8cor<-cor(FS8, use = "complete.obs")
+ggcorrplot(FS8cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: Food8 is negatively correlated with gender
+
+#Food9: Did you not eat for a whole day because you didn’t have enough money for food?
+FS9<-FSdata12%>%
+  select(FOOD9,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS9cor<-cor(FS9, use = "complete.obs")
+ggcorrplot(FS9cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: Food9 is positively correlated with gender
+
+#Overall Food Insecurity
+FS10<-FSdata12%>%
+  select(`FOOD SECURITY`,Gender,Age,LANGUAGE,USARR,Marital,HouseSize,EDU,EMPLOY,HOMEOWN,SAVINGS)
+FS10cor<-cor(FS10, use = "complete.obs")
+ggcorrplot(FS10cor,hc.order = TRUE,p.mat = p.mat1)
+ggcorrplot(FS10cor,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Significant Values: FOOD SECURITY is negatively correlated with gender
+
+#All correlations
+FSc<-cor(FSdata12,use = "complete.obs")
+head(FSc)
+
+#Correlation Visualization
+library(ggcorrplot)
+ggcorrplot(FSc)
+#Add correlation significance level
+#Barring the no significant coefficient 
+ggcorrplot(FSc,hc.order = TRUE,p.mat = p.mat1)
+#Insignificant is blank
+ggcorrplot(FSc,p.mat=p.mat1,hc.order = TRUE,insig = "blank")
+#Food security is negatively correlated with USARR and SAVINGS, and positively correlated with education. 
+```
+
+
+```{r}
+#This is using the binary response variable (0 or 1) for the variable "FOOD10," or, overall food insecurity. The remainder of the survey questions (FOOD1-FOOD9) have response options 1, 2, or 3.  
+#load libraries
+library(tidyverse) #masks stats::filter, lag
+library(tibble)
+library(psych) #masks ggpplot2:: %+%, alpha
+library(GGally) #masks dbplyr::nasa
+library(kableExtra) #masks dplyr::group_rows
+library(MVN)
+
+library(readxl)
+FSNEW <- read_excel("~/Library/Application Support/Microsoft/FSNEW.xlsx")
+glimpse(FSNEW)
+summary(FSNEW)
+
+#Pairs Plot
+(pairsPlot = GGally::ggpairs(data = FSNEW,
+                    upper = "blank",
+                    diag = list(continuous = wrap("densityDiag")),
+                    lower = list(continuous = wrap(ggally_smooth_lm)),
+                    title = "Pairs Plot"))
+
+#Correlations
+FScor<-cor(FSNEW,use = "complete.obs")
+head(FScor)
+p.mat<-cor_pmat(FSNEW)
+head(p.mat)
+
+#Correlation Visualization
+library(ggcorrplot)
+ggcorrplot(FScor)
+#Add correlation significance level
+#Barring the no significant coefficient 
+ggcorrplot(FScor,hc.order = TRUE,p.mat = p.mat)
+#Leave blank on no significant coefficient
+ggcorrplot(FScor,p.mat=p.mat,hc.order = TRUE,insig = "blank")
+```
+```{r}
+#Boxplots for FOOD10 and all variables 
+boxplot(FSNEW$MAR~FSNEW$FOOD10)
+boxplot(FSNEW$GEN~FSNEW$FOOD10)
+boxplot(FSNEW$AGE~FSNEW$FOOD10)
+boxplot(FSNEW$LANG~FSNEW$FOOD10)
+boxplot(FSNEW$USARR~FSNEW$FOOD10)
+boxplot(FSNEW$HOUS~FSNEW$FOOD10)
+boxplot(FSNEW$EDU~FSNEW$FOOD10)
+boxplot(FSNEW$EMPL~FSNEW$FOOD10)
+boxplot(FSNEW$HOME~FSNEW$FOOD10)
+boxplot(FSNEW$INC~FSNEW$FOOD10)
+boxplot(FSNEW$SAV~FSNEW$FOOD10)
+```
+
+
+
+```{r}
+#This entire chunk used the "FOOD10" indicator with response options being 1,2, or 3. 
+library(readxl)
+FSLinReg <- read_excel("~/Downloads/FSdata12_LinReg.xlsx")
+
+#Correlation Plot Visualized, FOOD10
+library(corrplot)
+newFS<-cor(FSLinReg[1:12],use = "pairwise.complete.obs")
+corrplot(newFS,method="number")
+#This is a correlation plot visualization for all variables, as compared to overall food insecurity.
+
+#Correlation Plot Visualizaed, all FOOD indicators
+library(corrplot)
+FSCorrplot<-cor(FSLinReg[1:21],use = "pairwise.complete.obs")
+corrplot(FSCorrplot,method="number")
+
+#Linear Regression, FOOD10, NON BINARY RESPONSES
+FS10_LinReg<-lm(formula=FOOD10~LANG+AGE+GEN+MAR+HOUS+EDU+EMPL+HOME+INC+SAV+USARR,data = FSLinReg,na.action = na.omit)
+summary(FS10_LinReg)
+plot(FS10_LinReg)
+#R^2=.1931, indicating that the regression models accounts for 19.31% of variability in the outcome measure. 
+#In linear regression, the coefficient interpretation of independent variables are quite straightforward (i.e. holding all other variables constant, with a unit increase in this variable, the dependent variable is expected to increase/decrease by xxx).
+
+#Calculation of variable importance using Linear Regression, FOOD10
+library(caret)
+FS10fit<-varImp(FS10_LinReg,scale=FALSE)
+FS10fit
+#Savings account, marriage, age, and education (in that order) are important variables in determining overall food insecurity. 
+```
+
+
+
+```{r}
+#These are individual logistic and linear regressions for each of the 11 variables, as compared to FOOD10. 
+#This entire chunk used the "FOOD10" indicator with response options being 0 or 1. 
+#ALL VARIABLES CONVERTED TO FACTORS
+
+library(readxl)
+FSLogReg <- read_excel("~/Downloads/FSLogReg.xlsx")
+#Visualization of missing responses:
+library(Amelia)
+missmap(FSLogReg,main="Missing Values vs. Observed")
+
+#Gender, Logistic Regression
+FSLogReg$GEN<-factor(FSLogReg$GEN)
+is.factor(FSLogReg$GEN)
+FSLogReg$GEN[1:20]
+uwu1<-glm(formula = FOOD10~GEN,na.action = na.exclude,data = FSLogReg)
+summary(uwu1)
+#Gender, Linear Regression
+LinGEN<-lm(formula = FOOD10~GEN,data = FSLogReg,na.action = na.omit)
+summary(LinGEN)
+#As compared to GEN0, GEN1 results in an increase in FOOD10. 
+
+#Language, Logistic Regression
+FSLogReg$LANG<-factor(FSLogReg$LANG)
+is.factor(FSLogReg$LANG)
+FSLogReg$LANG[1:20]
+uwu5<-glm(formula = FOOD10~LANG,data = FSLogReg,family = "gaussian")
+summary(uwu5)
+#Language, Linear Regression
+LinLANG<-lm(formula = FOOD10~LANG,data = FSLogReg,na.action = na.omit)
+summary(LinLANG)
+#As compared to LANG1, LANG2 and LANG3 result in an increase in FOOD10. 
+
+#Age, Logistic Regression
+FSLogReg$AGE<-factor(FSLogReg$AGE)
+is.factor(FSLogReg$AGE)
+FSLogReg$AGE[1:20]
+uwu6<-glm(formula = FOOD10~AGE,data = FSLogReg)
+summary(uwu6)
+#Age, Linear Regression
+LinAGE<-lm(formula = FOOD10~AGE,data = FSLogReg,na.action = na.omit)
+summary(LinAGE)
+#Pretty sure this does not mean anything. 
+
+#Marital Status, Logistic Regression
+FSLogReg$MAR<-factor(FSLogReg$MAR)
+is.factor(FSLogReg$MAR)
+FSLogReg$MAR[1:20]
+uwu7<-glm(formula = FOOD10~MAR,data = FSLogReg,na.action = na.omit)
+summary(uwu7)
+#Marital Status, Linear Regression
+LinMAR<-lm(formula = FOOD10~MAR,data = FSLogReg,na.action = na.omit)
+summary(LinMAR)
+#As compared to MAR1, MAR2, MAR3, and MAR5 result in an increase in FOOD10. 
+
+#Household Size, Logistic Regression
+FSLogReg$HOUS<-factor(FSLogReg$HOUS)
+is.factor(FSLogReg$HOUS)
+FSLogReg$HOUS[1:20]
+uwu8<-glm(formula = FOOD10~HOUS,data = FSLogReg,na.action = na.omit)
+summary(uwu8)
+#Household Size, Linear Regression
+LinHOUS<-lm(formula = FOOD10~HOUS,data = FSLogReg,na.action = na.omit)
+summary(LinHOUS)
+#Pretty sure this also does not mean anything. 
+#All indicators except HOUS7 are statistically significant.
+
+#Education, Logistic Regression
+FSLogReg$EDU<-factor(FSLogReg$EDU)
+is.factor(FSLogReg$EDU)
+FSLogReg$EDU[1:20]
+uwu2<-glm(formula = FOOD10~EDU,data = FSLogReg,family = "gaussian")
+summary(uwu2)
+#Education, Linear Regression
+LinEDU<-lm(formula = FOOD10~EDU,data = FSLogReg,na.action = na.omit)
+summary(LinEDU)
+#As compared to EDU1, EDU2 is more likely to increase chances of food insecurity overall. As compared to EDU1, EDU3 and EDU4 are more likely to result in a decrease of food insecurity. 
+
+#Employment Status, Logistic Regression
+FSLogReg$EMPL<-factor(FSLogReg$EMPL)
+FSLogReg$EMPL[1:20]
+uwu8<-glm(formula = FOOD10~EMPL,data = FSLogReg,family = "gaussian")
+summary(uwu8)
+#Employment Status, Linear Regression
+LinEMPL<-lm(formula = FOOD10~EMPL,data = FSLogReg,na.action = na.omit)
+summary(LinEMPL)
+#As compared to EMPL1, EMPL2 is more likely to result in an increase in food insecurity. As compared to EMPL1, EMPL3 is more likely to result in a decrease in food insecurity. 
+
+#Home owner status, logistic regression
+FSLogReg$HOME<-factor(FSLogReg$HOME)
+is.factor(FSLogReg$HOME)
+FSLogReg$HOME[1:20]
+uwu9<-glm(formula = FOOD10~HOME,data = FSLogReg,family = "gaussian")
+summary(uwu9)
+#Home owner status, linear regression
+LinHOME<-lm(formula = FOOD10~HOME,data = FSLogReg,na.action = na.omit)
+summary(LinHOME)
+#As compared to HOME1, HOME2(statistically significant), HOME3, and HOME4 result in a decrease of FOOD10.
+
+#Income, Logistic regression
+FSLogReg$INC<-factor(FSLogReg$INC)
+is.factor(FSLogReg$INC)
+FSLogReg$INC[1:20]
+uwu10<-glm(formula = FOOD10~INC,data = FSLogReg,family = "gaussian")
+summary(uwu10)
+#Income, Linear Regression
+LinINC<-lm(formula = FOOD10~INC,data = FSLogReg,na.action = na.omit)
+summary(LinINC)
+#As compared to INC1, INC2 and INC4(statistically significant) result in a decrease in FOOD10, and all other INC indicators result in an increase in the FOOD10 variable. 
+
+#Savings Account, Logistic Regression
+FSLogReg$SAV<-factor(FSLogReg$SAV)
+is.factor(FSLogReg$SAV)
+FSLogReg$SAV[1:20]
+uwu3<-glm(formula = FOOD10~SAV,data = FSLogReg,family = "gaussian")
+summary(uwu3)
+#Savings Account, Linear Regression
+LinSAV<-lm(formula = FOOD10~SAV,data = FSLogReg,na.action = na.omit)
+summary(LinSAV)
+#As compared to SAV0, SAV1(statistically significant) and SAV2 are more likely to result in an increase in FOOD10. 
+
+#USARR, Logistic Regression
+FSLogReg$USARR<-factor(FSLogReg$USARR)
+is.factor(FSLogReg$USARR)
+FSLogReg$USARR[1:20]
+uwu4<-glm(formula = FOOD10~USARR,data = FSLogReg)
+summary(uwu4)
+#USARR, Linear Regression
+LinUSARR<-lm(formula = FOOD10~USARR,data = FSLogReg,na.action = na.omit)
+summary(LinUSARR)
+#I do not think this means anything.
+```
+
+
+```{r}
+#These are logistic and linear regressions for all of the 11 variables together, as compared to FOOD10. 
+#This entire chunk used the "FOOD10" indicator with response options being 0 or 1.
+
+library(readxl)
+FSNEW <- read_excel("~/Library/Application Support/Microsoft/FSNEW.xlsx")
+
+#Logistic Regression, FOOD10 (NON FACTORED, BINARY)
+FS_LogReg<-glm(formula=FOOD10~LANG+AGE+GEN+MAR+EDU+EMPL+HOME+INC*HOUS+SAV+USARR,data = FSNEW,na.action = na.exclude)
+summary(FS_LogReg)
+plot(FS_LogReg)
+#AIC: 50.543
+
+#Correlation plot visual using logistic regression, FOOD10
+library(corrplot)
+FS10corLog<-cor(FSNEW[1:12],use = "pairwise.complete.obs")
+corrplot(FS10corLog,method="number")
+
+#Calculation of variable importance using logistic regression, FOOD 10
+library(caret)
+FS10Logfit<-varImp(FS_LogReg,scale=FALSE)
+FS10Logfit
+#Marital status, education, age, savings account, and household size (in that order) are the best predictors for overall food insecurity. 
+#Linear Regression, FOOD10 (NON FACTORED, BINARY)
+FS_LinReg<-lm(formula=FOOD10~LANG+AGE+GEN+MAR+HOUS+EDU+EMPL+HOME+INC+SAV+USARR,data = FSNEW,na.action = na.omit)
+summary(FS_LinReg)
+plot(FS_LinReg)
+confint(FS_LinReg)
+
+#Calculation of variable importance using linear regression, FOOD 10
+library(caret)
+FS10Linfit<-varImp(FS_LinReg,scale=FALSE)
+FS10Linfit
+#Exact same as above. 
+```
+
+```{r}
+#Correlations of each indicator's option with FOOD10 (using BINARY RESPONSES). 
+
+#Language 
+corLANG1<-cor(FSLogReg$FOOD10,FSLogReg$LANG==1,use = "complete.obs")
+corLANG1
+corLANG2<-cor(FSLogReg$FOOD10,FSLogReg$LANG==2,use = "complete.obs")
+corLANG2
+corLANG3<-cor(FSLogReg$FOOD10,FSLogReg$LANG==3,use = "complete.obs")
+corLANG3
+#LANG1 is negatively correlated with FOOD10, LANG2 and LANG3 are positively correlated with FOOD10. 
+
+#Education
+corEDU1<-cor(FSLogReg$FOOD10,FSLogReg$EDU==1,use = "complete.obs")
+corEDU1
+corEDU2<-cor(FSLogReg$FOOD10,FSLogReg$EDU==2,use = "complete.obs")
+corEDU2
+corEDU3<-cor(FSLogReg$FOOD10,FSLogReg$EDU==3,use = "complete.obs")
+corEDU3
+corEDU4<-cor(FSLogReg$FOOD10,FSLogReg$EDU==4,use = "complete.obs")
+corEDU4
+#EDU1 and EDU2 are positively correlated with FOOD10, EDU3 and EDU4 are negatively correlated with FOOD10. 
+
+#Savings
+corSAV0<-cor(FSLogReg$FOOD10,FSLogReg$SAV==0,use = "complete.obs")
+corSAV0
+corSAV1<-cor(FSLogReg$FOOD10,FSLogReg$SAV==1,use = "complete.obs")
+corSAV1
+corSAV2<-cor(FSLogReg$FOOD10,FSLogReg$SAV==2,use = "complete.obs")
+corSAV2
+#SAV0 is negatively correlated with FOOD10, SAV1 and SAV2 are positively correlated with FOOD10. 
+
+#Employment
+corEMPL1<-cor(FSLogReg$FOOD10,FSLogReg$EMPL==1,use = "complete.obs")
+corEMPL1
+corEMPL2<-cor(FSLogReg$FOOD10,FSLogReg$EMPL==2,use = "complete.obs")
+corEMPL2
+corEMPL3<-cor(FSLogReg$FOOD10,FSLogReg$EMPL==3,use = "complete.obs")
+corEMPL3
+#EMPL1 and EMPL2 are positively correlated with FOOD10, and EMPL3 is negatively correlated with FOOD10. 
+
+#Income
+corINC1<-cor(FSLogReg$FOOD10,FSLogReg$INC==1,use = "complete.obs")
+corINC1
+corINC2<-cor(FSLogReg$FOOD10,FSLogReg$INC==2,use = "complete.obs")
+corINC2
+corINC3<-cor(FSLogReg$FOOD10,FSLogReg$INC==3,use = "complete.obs")
+corINC3
+corINC4<-cor(FSLogReg$FOOD10,FSLogReg$INC==4,use = "complete.obs")
+corINC4
+corINC5<-cor(FSLogReg$FOOD10,FSLogReg$INC==5,use = "complete.obs")
+corINC5
+corINC6<-cor(FSLogReg$FOOD10,FSLogReg$INC==6,use = "complete.obs")
+corINC6
+corINC7<-cor(FSLogReg$FOOD10,FSLogReg$INC==7,use = "complete.obs")
+corINC7
+corINC8<-cor(FSLogReg$FOOD10,FSLogReg$INC==8,use = "complete.obs")
+corINC8
+#INC1,3,5,6,7,8 are positively correlated with FOOD10, while INC2 and INC4 are negatively correlated with FOOD10. 
+
+#Gender
+corGEN1<-cor(FSLogReg$FOOD10,FSLogReg$GEN==1,use = "complete.obs")
+corGEN1
+corGEN0<-cor(FSLogReg$FOOD10,FSLogReg$GEN==0,use = "complete.obs")
+corGEN0
+#GEN1 is positively correlated with FOOD10, while GEN0 is negatively correlated with FOOD10. 
+
+#Marital Status
+corMAR1<-cor(FSLogReg$FOOD10,FSLogReg$MAR==1,use = "complete.obs")
+corMAR1
+corMAR2<-cor(FSLogReg$FOOD10,FSLogReg$MAR==2,use = "complete.obs")
+corMAR2
+corMAR3<-cor(FSLogReg$FOOD10,FSLogReg$MAR==3,use = "complete.obs")
+corMAR3
+corMAR5<-cor(FSLogReg$FOOD10,FSLogReg$MAR==5,use = "complete.obs")
+corMAR5
+#MAR2,3,5 are postively correlated with FOOD10, and MAR1 is negatively correlated with FOOD10. 
+
+```
+
