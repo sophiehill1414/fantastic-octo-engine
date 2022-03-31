@@ -1,0 +1,180 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+---
+title: |
+  | WWS600B Introductory/Intermediate Statistics
+  | Problem Set 1
+output:
+  pdf_document: default
+  word_document: default
+header: |
+  | \usepackage{setspace} \setstretch{1.15} \setlength{\parskip}{1em}
+# Instructions
+
+1. Solutions, including the \texttt{R} Markdown, must be uploaded to Canvas as a \LaTeX-generated PDF at or before 23:59 on Wednesday, July 1, 2020 (EDT). 
+2. Discussing the problem set with your classmates is highly encouraged. However, 
+    * Please work in a group of no more than three students;
+    * If you do work in a group, please write down the name of your groupmate(s) to acknowledge their intellectual contributions; and
+    * Each person must submit their own solutions to Canvas. 
+3. Clarification questions are welcomed before 23:59 on Monday, June 29, 2020 (EDT), and can be directed to the Instructor (<zchan@princeton.edu>), Preceptor (<cwilleck@princeton.edu>), and/or Tutor (<hannaz@princeton.edu>). You may also make use of their office hours. 
+
+
+# Health Savings Experiments
+
+To understand why the poor are constrained in their ability to save for investments in preventative health products, two researchers designed a field experiment in rural Kenya in which they randomly varied access to four innovative saving technologies. By observing the impact of these various technologies on asset accumulation, and by examining which types of people benefit most from them, the researchers were able to identify the key barriers to saving.  This exercise is based on: 
+
+Dupas, Pascaline and Jonathan Robinson. 2013. "[Why Don't the Poor Save More? Evidence from Health Savings Experiments.](http://dx.doi.org/10.1257/aer.103.4.1138)" *American Economic Review*, Vol. 103, No. 4, pp. 1138-1171.
+
+They worked with 113 ROSCAs (Rotating Savings and Credit Associations). A ROSCA is a group of individuals who come together and make regular cyclical contributions to a fund (called the “pot”), which is then given as a lump sum to one member in each cycle. In their experiment, Dupas and Robinson randomly assigned 113 ROSCAs to one of the five study arms. In this exercise, we will focus on three study arms (one control and two treatment arms). The data file, `rosca.csv` is extracted from their original data, excluding individuals who have received multiple treatments for the sake of simplicity.
+
+Individuals in all study arms were encouraged to save for health and were asked to set a health goal for themselves at the beginning of the study.  In the first treatment group (*Safe Box*), respondents were given a box locked with a padlock, and the key to the padlock was provided to the participants. They were asked to record what health product they were saving for and its cost. This treatment is designed to estimate the effect of having a safe and designated storage technology for preventative health savings.  
+
+In the second treatment group (*Locked Box*), respondents were given a locked box, but not the key to the padlock. The respondents were instructed to call the program officer once they had reached their saving goal, and the program officer would then meet the participant and open the *Locked Box* at the shop where the product is purchased. Compared to the safe box, the locked box offered stronger commitment through earmarking (the money saved could only be used for the prespecified purpose). 
+
+Participants are interviewed again 6 months and 12 months later. In this exercise, our outcome of interest is the amount (in Kenyan shilling) spent on preventative health products after 12 months.
+
+Descriptions of the relevant variables in the data file `rosca.csv` are:
+
+--------------------------------------------------------------------------------------------
+ Name                             Description
+ -------------------------------- ----------------------------------------------------------
+ `bg_female`                      `1` if female, and `0` otherwise
+ 
+ `bg_married`                     `1` if married, and `0` otherwise
+ 
+ `bg_b1_age`                      age at baseline
+ 
+ `encouragement`                  `1` if encouragement only (control group), and `0` otherwise 
+ 
+ `safe_box`                       `1` if safe box treatment, and `0` otherwise
+ 
+ `locked_box`                     `1` if lock box treatment, and `0` otherwise
+ 
+ `fol2_amtinvest`                 Amount invested in health products         
+ 
+ `has_followup2`                  `1` if appears in 2nd followup (after 12 months), and `0` otherwise
+--------------------------------------------------------------------------------------------
+
+## Question 1 (10 points)
+
+Load the data set as a `data.frame` and create a single factor variable `treatment` that takes the value `control` if receiving only encouragement, `safebox` if receiving a safe box,  and `lockbox` if receiving a locked box. How many individuals are in the control group? How many individuals are in each of the treatment arms?
+```{r}
+library(latexpdf)
+rosca<-read.csv("rosca.csv")
+summary(rosca)
+
+rosca$treatment<-ifelse(rosca$encouragement==1,"control",ifelse(rosca$locked_box==1,"locked_box","safe_box"))
+rosca$treatment
+
+sum_control<-sum(rosca$treatment=="control")
+sum_control
+#111 individuals in the control group.
+
+sum_locked<-sum(rosca$treatment=="locked_box")
+sum_locked
+#195 people in the locked box group
+
+sum_safe<-sum(rosca$treatment=="safe_box")
+sum_safe
+#117 people in the safebox group
+```
+
+
+## Question 2 (10 points)
+
+Subset the data so that it contains only participants who were interviewed in 12 months during the second followup.  We will use this subset for the subsequent analyses. How many participants are left in each group of this subset?  Does the drop-out rate differ across the treatment conditions?  What does this result suggest about the internal and external validity of this study? 
+```{r}
+only_followup<-subset(rosca,rosca$has_followup2==1)
+only_followup
+sum(only_followup$has_followup2)
+#393 participants had a second followup after 12 months
+
+sum_control_followup<-sum(only_followup$has_followup2[only_followup$treatment=="control"])
+sum_control-sum_control_followup
+#9 of the participants in the control group dropped out prior to the 12 month check up
+
+sum_safe_followup<-sum(only_followup$has_followup2[only_followup$treatment=="safe_box"])
+sum_safe-sum_safe_followup
+#10 of the participants in the safe box group dropped out prior to the 12 month checkup
+
+sum_locked_followup<-sum(only_followup$has_followup2[only_followup$treatment=="locked_box"])
+sum_locked-sum_locked_followup
+#11 of the participants in the locked box group dropped out prior to the 12 month checkup
+```
+
+
+## Question 3 (10 points)
+
+Does receiving a safe box increase the amount invested in health products? We focus on the outcome measured 12 months from baseline during the second follow-up. Compare the mean of amount (in Kenyan shilling) invested in health products `fol2_amtinvest` between each of the treatment arms and the control group. Briefly interpret the result.
+```{r}
+
+control_investment<-mean(rosca$fol2_amtinvest[rosca$treatment=="control"&rosca$has_followup2==1], na.rm = TRUE)
+control_investment
+#The mean investment of the control group was 257.8333
+
+safebox_investment<-mean(rosca$fol2_amtinvest[rosca$treatment=="safe_box"&rosca$has_followup2==1], na.rm = TRUE)
+safebox_investment
+#The mean investment of the safe box group was 408.215
+
+lockedbox_investment<-mean(rosca$fol2_amtinvest[rosca$treatment=="locked_box"&rosca$has_followup2==1], na.rm = TRUE)
+lockedbox_investment
+#The mean investment of the lock box group is 307.8261
+
+#The means from the groups were ~408 for the safe box group, ~308 for the locked box group, and ~258 for the control group. Evidently, it seems that being given a safe box significantly increases the amount of Kenyan shilling invested in health products as compared to the control group. The locked box method seems to also increase the amount of money invested in products as compared to the control group. Although, the locked box method's mean investment was less than that of the safe box mean investment. Thus, one can assume that having a safe and designated storage (safe box) is correlated with more investing in heath products, with regards to this study's treatment and control groups. The stronger commitment tested in the locked box method was also correlated with investing more in health products, as compared to the control group. Again, the group that saw the largest investment numbers were those in the safe box group. 
+
+```
+
+
+## Question 4 (10 points)
+
+Examine the balance of pre-treatment variables, gender (`bg_female`), age (`bg_b1_age`) and marital status (`bg_married`). Are participants in the two treatment groups different from those in the control group?  What does the result of this analysis suggest in terms of the internal validity of the finding presented in the previous question?
+```{r}
+hist(rosca$bg_female)
+#graph shows there are twice as many females as males in this experiment.
+
+hist(rosca$bg_b1_age)
+#graph shows that the distribution of ages in this experiment is slightly skewed, there are not many younger participants and older participants. 
+
+hist(rosca$bg_married)
+#graph shows there are twice as many married women than unmarried women.
+
+#Withal, the pre-treatment variables of gender, age, and marital status are skewed and likely not representative of the population being tested. There were twice as many females than males in this study, and of those females, 2/3 of them are married. Also, the distribution of ages is slightly skewed, as very few 10-20, 70-80, and 80-90 year old participants were studied. While I cannot say with complete certainty whether or not these pre-treatment variables are representative of the actual population of interest, it is safe to assume that the marital statuses and genders were especially disproportionate, and the ages were not all-encomposing. Thus, this suggests that the internal validity of this experiment is likely weakened by the pre-treatment measures. 
+```
+
+
+## Question 5 (10 points)
+
+Does receiving a safe box or a locked box have different effects on the investment of *married* versus *unmarried women*? Compare the mean investment in health products among married women across three groups. Then compare the mean investment in health products among unmarried women across three groups. Briefly interpret the result.  How does this analysis address the internal validity issue discussed in Question 4? 
+```{r}
+mean_mwomen_control<-mean(rosca$fol2_amtinvest[rosca$bg_married==1&rosca$bg_female==1&rosca$treatment=="control"],na.rm = TRUE)
+mean_mwomen_control
+#The mean of married women in the control group is 239.66
+
+mean_mwomen_safe<-mean(rosca$fol2_amtinvest[rosca$bg_married==1&rosca$bg_female==1&rosca$treatment=="safe_box"],na.rm = TRUE)
+mean_mwomen_safe
+#The mean of married women in the safe box group is 557.1356
+
+mean_mwomen_locked<-mean(rosca$fol2_amtinvest[rosca$bg_married==1&rosca$bg_female==1&rosca$treatment=="locked_box"],na.rm = TRUE)
+mean_mwomen_locked
+#The mean of married women in the locked box group is 332.433
+
+mean_unmwomen_control<-mean(rosca$fol2_amtinvest[rosca$bg_married==0&rosca$bg_female==1&rosca$treatment=="control"],na.rm = TRUE)
+mean_unmwomen_control
+#The mean of unmarried women in the control group is 218.5417
+
+mean_unmwomen_safe<-mean(rosca$fol2_amtinvest[rosca$bg_married==0&rosca$bg_female==1&rosca$treatment=="safe_box"],na.rm = TRUE)
+mean_unmwomen_safe
+#The mean of unmarried women in the safe box group is 264.0385
+
+mean_unmwomen_locked<-mean(rosca$fol2_amtinvest[rosca$bg_married==0&rosca$bg_female==1&rosca$treatment=="locked_box"],na.rm = TRUE)
+mean_unmwomen_locked
+#The mean of unmarried women in the locked box group is 220.4737
+
+#The mean of married women in the safe box group is ~557 and the mean of unmarried women within this group is ~264. Evidently, there are discrepancies in the outcomes that are stemming from the marital status of the women. As previously mentioned, the internal validity of this experiment is weakened, as the results likely cannot be applied to many other populations outside of this one. The large gap between the means in the unmarried versus married women in the safe box group are likely due to women in marriages having children and spouses in need of health products, while the unmarried women may not have the same responsibilities. Additionally, the mean of the married women in the locked box group was ~332, and the mean of this group in unmarried women was ~221. The same possibility of differing familial responsibilities can be applied here as well, due to the significant difference in the means of unmarried versus married women in the locked box group. But, the married women in the safe box group invested the most in health products, as compared to the other five groups using the marital status variable. Also, the married women in the control group had a mean of ~240, and the unmarried women of this group had a mean of ~219. While the difference is a lot smaller than when compared to the vast discrepancies between the treatment groups using the variable of marital status, the control group of married women still invested more in health products than those who were not married. 
+
+```
+
+

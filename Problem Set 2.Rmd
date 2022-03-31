@@ -1,0 +1,426 @@
+---
+title: |
+  | WWS600B Introductory/Intermediate Statistics
+  | Problem Set 2
+output:
+  word_document: default
+  pdf_document: default
+header: |
+  | \usepackage{setspace} \setstretch{1.15} \setlength{\parskip}{1.5em}
+---
+
+# Instructions
+
+1. Solutions, including the \texttt{R} Markdown, must be uploaded to Canvas as a \LaTeX-generated PDF at or before 23:59 on Wednesday, July 8, 2020 (EDT). 
+2. Discussing the problem set with your classmates is highly encouraged. However, 
+    * Please work in a group of no more than three students;
+    * If you do work in a group, please write down the name of your groupmate(s) to acknowledge their intellectual contributions; and
+    * Each person must submit their own solutions to Canvas. 
+3. Clarification questions are welcomed before 23:59 on Monday, July 6, 2020 (EDT), and can be directed to the Instructor (<zchan@princeton.edu>), Preceptor (<cwilleck@princeton.edu>), and/or Tutor (<hannaz@princeton.edu>). You may also make use of their office hours. 
+
+
+# Reducing Transphobia via Canvassing
+
+
+Can transphobia be reduced through in-person conversations and perspective-taking exercises, or *active processing*?  Following up on [the research](http://dx.doi.org/10.1126/science.1256151) that was shown to be fabricated, two researchers conducted a door-to-door canvassing experiment in South Florida targeting anti-transgender prejudice in order to answer this question. Canvassers held single, approximately 10-minute conversations that encouraged actively taking the perspective of others with voters to see if these conversations could markedly reduce prejudice.  This exercise is based on the following study:
+
+Broockman, David and Joshua Kalla. 2016. "[Durably reducing transphobia: a field experiment on door-to-door canvassing](https://dx.doi.org/10.1126/science.aad9713)." *Science*, Vol. 352, No. 6282, pp. 220-224.
+
+In the experiment, the authors first recruited registered voters ($n=68378$) via mail for an online baseline survey, presented as the first in a series of surveys. They then randomly assigned respondents of this baseline survey ($n=1825$) to either a treatment group targeted with the intervention ($n=913$) or a placebo group targeted with a conversation about recycling ($n=912$).  For the intervention, 56 canvassers first knocked on voters’ doors unannounced. Then, canvassers asked to speak with the subject on their list and confirmed the person's identity if the person came to the door. A total of several hundred individuals ($n=501$) came to their doors in the two conditions. For logistical reasons unrelated to the original study, we further reduce this dataset to ($n=488$) which is the full sample that appears in the `transphobia.csv` data.
+
+The canvassers then engaged in a series of strategies previously shown to facilitate active processing under the treatment condition: canvassers informed voters that they might face a decision about the issue (whether to vote to repeal the law protecting transgender people); canvassers asked voters to explain their views; and canvassers showed a video that presented arguments on both sides. Canvassers defined the term "transgender" at this point and, if they were transgender themselves, noted this. The canvassers next attempted to encourage "analogic perspective-taking". Canvassers first asked each voter to talk about a time when they themselves were judged negatively for being different. The canvassers then encouraged voters to see how their own experience offered a window into transgender people’s experiences, hoping to facilitate voters’ ability to take transgender people’s perspectives. The intervention ended with another attempt to encourage active processing by asking voters to describe if and how the exercise changed their mind. All of the former steps constitutes the "treatment." 
+
+The placebo group was reminded that recycling was most effective when everyone participates. The canvassers talked about how they were working on ways to decrease environmental waste and asked the voters who came to the door about their support for a new law that would require supermarkets to charge for bags instead of giving them away for free. This was meant to mimic the effect of canvassers interacting with the voters in face-to-face conversation on a topic different from transphobia.
+
+The authors then asked the individuals who came to their doors in either condition ($n=488$) to complete follow-up online surveys via email presented as a continuation of the baseline survey. These follow-up surveys began 3 days, 3 weeks, 6 weeks, and 3 months after the intervention when the baseline survey was also conducted. For the purposes of this exercise, we will be using the `tolerance.t#` variables (where `#` is 0 through 4) as the main outcome variables of interest. The authors constructed these dependent variables `tolerance.t#` as indexes by using several other measures that are not included in this exercise. In building this index, the authors scaled the variables such that they have a mean of 0 and standard deviation of 1 for the placebo group. Higher values indicate higher tolerance, lower values indicate lower tolerance relative to the placebo group. 
+
+The data set is the file `transphobia.csv`. Variables that begin with `vf_` come from the voter file. Variables in this dataset are described below:
+
+-------------------------------------------------------------------------------------------
+ Name                             Description
+ -------------------------------- ----------------------------------------------------------
+ `id`                             Respondent ID
+ 
+ `vf_age`                         Age
+ 
+ `vf_party`                       Party: `D`=Democrats, `R`=Republicans and `N`=Independents
+ 
+ `vf_racename`                    Race: `African American`, `Caucasian`, `Hispanic`
+ 
+ `vf_female`                      Gender: `1` if female, `0` if male
+ 
+ `treat_ind`                      Treatment assignment: `1`=treatment, `0`=placebo
+ 
+ `treatment.delivered`            Intervention was actually delivered (=`1`) vs. was not (=`0`)
+ 
+ `tolerance.t0`                   Outcome tolerance variable at Baseline
+ 
+ `tolerance.t1`                   (see above) Captured at 3 days after Baseline
+ 
+ `tolerance.t2`                   (see above) Captured at 3 weeks after Baseline
+ 
+ `tolerance.t3`                   (see above) Captured at 6 weeks after Baseline
+ 
+ `tolerance.t4`                   (see above) Captured at 3 months after Baseline
+-------------------------------------------------------------------------------------------
+  
+## Question 1 (10 points)
+
+For each of the five waves, including the baseline survey, compute the sample average treatment effect of being assigned (`treat_ind`) to having an in-person conversation about perspective-taking for transgender issues on tolerance towards the transgender community.  Interpret the estimates and provide their implications for the internal validity of the study as well as the hypothesis in question.  Pay attention to how the outcome variables were created when interpreting the size of estimated treatment effect.  Next, plot the average tolerance level separately for the treatment and placebo group over time.  Use solid (open) circles for the treatment (placebo) groups, respectively, and connect these points with lines.  The horizontal axis should represent the number of days from the baseline survey. Interpret the resulting graph.
+```{r}
+#Compute the sample average treatment effect of treatment assignment for each of the five groups 
+transphobia<-read.csv("transphobia.csv", header=TRUE)
+library(ggplot2)
+library(tidyverse)
+trans_sub <- transphobia%>%
+ group_by(treat_ind)%>%
+  summarize(avg0=mean(tolerance.t0), avg1=mean(tolerance.t1, na.rm=TRUE), avg2=mean(tolerance.t2, na.rm=TRUE), avg3=mean(tolerance.t3,na.rm=TRUE),avg4=mean(tolerance.t4, na.rm = TRUE))%>% 
+  gather(time, tolerance, avg0:avg4)%>%
+ mutate(time = as.numeric(substr(time, 4, 4)))
+view(trans_sub)
+ggplot(trans_sub, aes(x= time, y= tolerance, color = as.factor(treat_ind), shape= as.factor(treat_ind))) + geom_line()+geom_point()+theme_bw()+ labs(color = "treated", shape= "treated")
+
+
+#The way I did it in R Base:
+summary(transphobia)
+
+treatBL<-mean(transphobia$tolerance.t0[transphobia$treat_ind==1],na.rm = TRUE)
+placeboBL<-mean(transphobia$tolerance.t0[transphobia$treat_ind==0],na.rm = TRUE)
+avg_treat_effect_BL<-placeboBL-treatBL
+avg_treat_effect_BL
+#Avg treatment effect for the baseline outcome is 0.04003847
+
+treatone<-mean(transphobia$tolerance.t1[transphobia$treat_ind==1],na.rm = TRUE)
+placeboTone<-mean(transphobia$tolerance.t1[transphobia$treat_ind==0],na.rm=TRUE)
+avg_treat_effect_T1<-(treatone-placeboTone)
+avg_treat_effect_T1
+#Avg treatment effect for the T1 outcome is 0.1443226
+
+treat2<-mean(transphobia$tolerance.t2[transphobia$treat_ind==1],na.rm = TRUE)
+placeboT2<-mean(transphobia$tolerance.t2[transphobia$treat_ind==0],na.rm=TRUE)
+avg_treat_effect_T2<-(treat2-placeboT2)
+avg_treat_effect_T2
+#Avg treatment effect for the T2 outcome is 0.1173435
+
+treat3<-mean(transphobia$tolerance.t3[transphobia$treat_ind==1],na.rm = TRUE)
+placebo3<-mean(transphobia$tolerance.t3[transphobia$treat_ind==0],na.rm=TRUE)
+avg_treat_effect_T3<-(treat3-placebo3)
+avg_treat_effect_T3
+#Avg treatment effect for the T3 outcome is 0.2469228
+
+treat4<-mean(transphobia$tolerance.t4[transphobia$treat_ind==1],na.rm = TRUE)
+placeboT4<-mean(transphobia$tolerance.t4[transphobia$treat_ind==0],na.rm=TRUE)
+avg_treat_effect_T4<-(treat4-placeboT4)
+avg_treat_effect_T4
+#Avg treatment effect for the T4 outcome is .1762387
+
+#All average treatment effects are different, but the numbers are in general increasing over time. The internal validity may be harmed by this because treatment distributed over time can differ with regards to the exact treatment being implemented and how it is administered, thus, hurting internal validity. 
+```
+## Question 2 (10 points)
+We might wish to know the stickiness of attitudes over time. Compute (separately) the correlation coefficients for the treatment and placebo groups (based on assignment to treatment or placebo) across each 2-way combination of the dependent variables: `tolerance.t0`, `tolerance.t1`, `tolerance.t2`, `tolerance.t3` and `tolerance.t4`? Then find the difference in correlation coefficients between the placebo and treatment groups. Interpret the resulting correlations. Is there a difference across the groups? 
+```{r}
+#1) Find correlation coefficients for the treatment and placebo groups (based on assignment to treatment or placebo) 
+#2) Find difference in correlation coefficients between the placebo and treatment groups. 
+
+#It's about calculating Pearson's r for different pairs and subgroups. You generate the correlation matrices for tolerance.t0, tolerance.t1, tolerance.t2, tolerance.t3, and tolerance.t4 within the placebo and treatment groups using the cor() function. You save these two matrices and then subtract one from the other to see if there is a difference across the two groups, and interpret the difference.
+
+BLRtret<-cor(transphobia$tolerance.t0,transphobia$treat_ind==1)
+BLRpla<-cor(transphobia$tolerance.t0,transphobia$treat_ind==0)
+BLRpla-BLRtret
+#The difference in R for the baseline group is 0.03790458.
+
+one_R_treat<-cor(transphobia$tolerance.t1,transphobia$treat_ind==1,use="complete.obs")
+one_R_control<-cor(transphobia$tolerance.t1,transphobia$treat_ind==0,use = "complete.obs")
+one_R_treat-one_R_control
+#The difference in R for the T1 group is 0.1345949. 
+
+two_R_treat<-cor(transphobia$tolerance.t2,transphobia$treat_ind==1,use="complete.obs")
+two_R_control<-cor(transphobia$tolerance.t2,transphobia$treat_ind==0,use = "complete.obs")
+two_R_treat-two_R_control
+#The difference in R for the T2 group is 0.112478.
+
+three_R_treat<-cor(transphobia$tolerance.t3,transphobia$treat_ind==1,use="complete.obs")
+three_R_control<-cor(transphobia$tolerance.t3,transphobia$treat_ind==0,use = "complete.obs")
+three_R_treat-three_R_control
+#The difference in R for the T3 group is 0.2377825
+
+four_R_treat<-cor(transphobia$tolerance.t4,transphobia$treat_ind==1,use="complete.obs")
+four_R_control<-cor(transphobia$tolerance.t4,transphobia$treat_ind==0,use = "complete.obs")
+four_R_treat-four_R_control
+#The difference in R for the T4 group is 0.1708808 
+
+#The difference in correlation in the Baseline group (BL, T0) is the weakest (at ~0.038). It appears that the strongest difference in correlation appears at the fourth wave (T3) of the intervention, with a correlation of ~.24. The fifth wave's (T4) difference in correlation between the control and treatment group resulted in the second highest outcome, at ~.17. And the second (T1) and third waves (T2) had some differences in correlation, respectively at ~0.13 and ~.11. 
+#GO BACK AND INTERPRET 
+
+```
+
+## Question 3 (10 points)
+
+The authors of the study posited that it might be possible that Republicans, Democrats, and Independents respond differently to the treatment from one another because of party policy differences. It is also possible that respondent race might interact with the treatment in different ways resulting in different treatment effects. That is, there might be heterogeneous treatment effects of being assigned to the treatment (`treat_ind`) with `vf_party` and/or `vf_racename`. Evaluate whether these two hypotheses are true by finding the differences in average treatment effects by party as well as by race in treatment and placebo groups across waves.   Provide a time series plot of the treatment effects over time separately by party and by race with informative labels. Interpret the resulting plots. Pay attention to how the outcome variables were created when interpreting the magnitude of treatment effects.
+```{r}
+#To make this work, try mean(senate$bill_prop[senate$party==1&senate$treatment==1])
+#This will return the mean bills passed for democrats who are treated.  In this code, we are taking the bill_prop variable and only taking the observations where the party variable equals 1 and the treatment variable equals 1. 
+
+#If you want to find the treatment effect for democrats then you can subtract that by the mean bills passed for democrats in the control:
+#mean(senate$bill_prop[senate$party==1&senate$treatment==1])-mean(senate$bill_prop[senate$party==1&senate$treatment==0])
+
+#You can do the same for Republicans by changing the senate$party==0 instead of senate$party==1. 
+
+
+
+#I could not figure out how to do this with tidyverse and found the directions posted online confusing. I used previous precepts and data analyses to try and complete it to the best of my abilities. 
+#Treated Democrats
+Treated_Dem_BL<-mean(transphobia$tolerance.t0[transphobia$vf_party=="D"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_Dem_BL
+#0.07467968
+con_Dem_BL<-mean(transphobia$tolerance.t0[transphobia$vf_party=="D"&transphobia$treat_ind==0],na.rm = TRUE)
+con_Dem_BL
+#0.09224121
+treat_effect_D_BL<-Treated_Dem_BL-con_Dem_BL
+treat_effect_D_BL
+#-0.01756153
+
+Treated_Dem_T1<-mean(transphobia$tolerance.t1[transphobia$vf_party=="D"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_Dem_T1
+#0.2273598
+con_Dem_T1<-mean(transphobia$tolerance.t1[transphobia$vf_party=="D"&transphobia$treat_ind==0],na.rm = TRUE)
+con_Dem_T1
+#0.07106594
+treat_effect_D_T1<-Treated_Dem_T1-con_Dem_T1
+treat_effect_D_BL
+#-0.01756153
+
+Treated_Dem_T2<-mean(transphobia$tolerance.t2[transphobia$vf_party=="D"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_Dem_T2
+#0.1972187
+con_Dem_T2<-mean(transphobia$tolerance.t2[transphobia$vf_party=="D"&transphobia$treat_ind==0],na.rm = TRUE)
+con_Dem_T2
+#0.07924813
+treat_effect_D_T2<-Treated_Dem_T2-con_Dem_T2
+treat_effect_D_T2
+#-0.01756153
+
+Treated_Dem_T3<-mean(transphobia$tolerance.t3[transphobia$vf_party=="D"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_Dem_T3
+#0.3377408
+con_Dem_T3<-mean(transphobia$tolerance.t3[transphobia$vf_party=="D"&transphobia$treat_ind==0],na.rm = TRUE)
+con_Dem_T3
+#0.1809237
+treat_effect_D_T3<-Treated_Dem_T3-con_Dem_T3
+treat_effect_D_T3
+#0.1568171
+
+Treated_Dem_T4<-mean(transphobia$tolerance.t4[transphobia$vf_party=="D"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_Dem_T4
+#0.3108661
+con_Dem_T4<-mean(transphobia$tolerance.t4[transphobia$vf_party=="D"&transphobia$treat_ind==0],na.rm = TRUE)
+con_Dem_T4
+#0.1604495
+treat_effect_D_T4<-Treated_Dem_T4-con_Dem_T4
+treat_effect_D_T4
+#0.1568171
+
+
+#Treated Republicans
+Treated_R_BL<-mean(transphobia$tolerance.t0[transphobia$vf_party=="R"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_R_BL
+#-0.5024774
+con_R_BL<-mean(transphobia$tolerance.t0[transphobia$vf_party=="R"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_R_BL<-Treated_R_BL-con_R_BL
+treat_effect_R_BL
+#-0.298714
+
+Treated_R_T1<-mean(transphobia$tolerance.t1[transphobia$vf_party=="R"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_R_T1
+#-0.147379
+con_R_T1<-mean(transphobia$tolerance.t1[transphobia$vf_party=="R"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_R_T1<-Treated_R_T1-con_R_T1
+treat_effect_R_T1
+#0.04928711
+
+Treated_R_T2<-mean(transphobia$tolerance.t2[transphobia$vf_party=="R"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_R_T2
+#-0.1692532
+con_R_T2<-mean(transphobia$tolerance.t2[transphobia$vf_party=="R"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_R_T2<-Treated_R_T2-con_R_T1
+treat_effect_R_T2
+#0.02741291
+
+Treated_R_T3<-mean(transphobia$tolerance.t3[transphobia$vf_party=="R"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_R_T3
+#-0.1229219
+con_R_T3<-mean(transphobia$tolerance.t3[transphobia$vf_party=="R"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_R_T3<-Treated_R_T3-con_R_T3
+treat_effect_R_T3
+#0.2261757
+
+Treated_R_T4<-mean(transphobia$tolerance.t4[transphobia$vf_party=="R"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_R_T4
+#-0.2925588
+con_R_T4<-mean(transphobia$tolerance.t4[transphobia$vf_party=="R"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_R_T4<-Treated_R_T4-con_R_T4
+treat_effect_R_T4
+#0.07785344
+
+#Treated Independents
+Treated_I_BL<-mean(transphobia$tolerance.t0[transphobia$vf_party=="N"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_I_BL
+#0.1980273
+con_I_BL<-mean(transphobia$tolerance.t0[transphobia$vf_party=="N"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_I_BL<-Treated_I_BL-con_I_BL
+treat_effect_I_BL
+#0.1032777
+
+Treated_I_T1<-mean(transphobia$tolerance.t1[transphobia$vf_party=="N"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_I_T1
+#0.2609165
+con_I_T1<-mean(transphobia$tolerance.t1[transphobia$vf_party=="N"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_I_T1<-Treated_I_T1-con_I_T1
+treat_effect_I_T1
+#0.129073
+
+Treated_I_T2<-mean(transphobia$tolerance.t2[transphobia$vf_party=="N"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_I_T2
+#0.2312042
+con_I_T2<-mean(transphobia$tolerance.t2[transphobia$vf_party=="N"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_I_T2<-Treated_I_T2-con_I_T2
+treat_effect_I_T2
+#0.02608484
+
+Treated_I_T3<-mean(transphobia$tolerance.t3[transphobia$vf_party=="N"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_I_T3
+#0.4213155
+con_I_T3<-mean(transphobia$tolerance.t3[transphobia$vf_party=="N"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_I_T3<-Treated_I_T3-con_I_T3
+treat_effect_I_T3
+#0.2733975
+
+Treated_I_T4<-mean(transphobia$tolerance.t3[transphobia$vf_party=="N"&transphobia$treat_ind==1],na.rm = TRUE)
+Treated_I_T4
+#0.4213155
+con_I_T4<-mean(transphobia$tolerance.t4[transphobia$vf_party=="N"&transphobia$treat_ind==0],na.rm = TRUE)
+treat_effect_I_T4<-Treated_I_T4-con_I_T4
+treat_effect_I_T4
+#0.2821544
+
+#Doing the same question using tapply
+t0<-tapply(transphobia$tolerance.t0,transphobia$vf_party,mean,na.rm=TRUE)
+
+t0pr<-tapply(transphobia$tolerance.t0,transphobia[,c("vf_party","vf_racename")],mean,na.rm=TRUE)
+t0pr
+t1pr<-tapply(transphobia$tolerance.t1,transphobia[,c("vf_party","vf_racename")],mean,na.rm=TRUE)
+t1pr
+t2pr<-tapply(transphobia$tolerance.t2,transphobia[,c("vf_party","vf_racename")],mean,na.rm=TRUE)
+t2pr
+
+#binds data together
+r_bind<-rbind(t0pr,t1pr,t2pr)
+df<-data.frame(r_bind)
+df$party<-rownames(r_bind)
+df$party
+df$wave<-c(0,0,0,3,3,3,21,21,21)
+df$wave
+
+ggplot(df, aes(x=wave,y=Caucasian, color=party, group=wave))+geom_point()+geom_line()
+
+
+
+
+library(tidyverse)
+t0tidy<-transphobia%>%
+  group_by(vf_party,vf_racename)%>%
+  summarize(mean(tolerance.t0,na.rm = TRUE))
+
+t0tidy
+
+#Base R plot: 
+
+#Independent_party_treatment_effects<- data.frame(c(treat_effect_I_BL,so on so forth...),c(3 days, 3 weeks, 3 months etc ))
+#This creates a vector
+
+#plot normally 
+
+
+
+
+
+
+#Withal, the democrats seem to be the most malleable and open to conversation, hence, the larger effects. Independents are also willing to have open dialogue, especially when compared to the Republican group. 
+```
+
+## Question 4 (10 points)
+
+Attrition, or drop-out, is a common problem for panel survey studies. In the case of the transphobia experiment, some individuals who responded to the baseline survey did not complete follow up surveys. Examine the extent to which the sample remained representative of the original sample with the implementation of each survey wave, by computing the attrition rate (i.e., the proportion of baseline survey respondents who did not answer each subsequent survey) separately for the placebo and treatment groups over time.  What is the attrition rate for placebo and treatment groups going from Baseline (Wave 0) to 3 days (Wave 1)? From Baseline (Wave 0) to 3 weeks (Wave 2)? Continue for all Waves and create a time series plot for the attrition rate by group. Do we observe any asymmetrical attrition based on treatment group? How might differences in attrition across groups affect how we interpret our findings?
+
+Moreover, is attrition more likely along certain covariates? Explore this question with regards to `vf_female` and `vf_party`, calculating the attrition rate for each subgroup (female, male, democrat, republican) in Wave 4 only.  Comment on some of the implications attrition through these covariates would have for the analysis. 
+```{r}
+library(tidyverse)
+att_rate <- transphobia %>%
+group_by(treat_ind) %>% 
+summarize(test1 = (length(na.omit(tolerance.t0))-length(na.omit(tolerance.t1)))/(length(na.omit(tolerance.t0))+length(na.omit(tolerance.t1)))/2, test2 = (length(na.omit(tolerance.t0))-length(na.omit(tolerance.t2)))/(length(na.omit(tolerance.t0))+length(na.omit(tolerance.t2)))/2, test3 = (length(na.omit(tolerance.t0))-length(na.omit(tolerance.t3)))/(length(na.omit(tolerance.t0))+length(na.omit(tolerance.t3)))/2, test4 = (length(na.omit(tolerance.t0))-length(na.omit(tolerance.t4)))/(length(na.omit(tolerance.t0))+length(na.omit(tolerance.t4)))/2)%>%
+gather(time, tolerance, test1:test4)%>%
+mutate(time = as.numeric(substr(time, 5, 5)))
+
+view(att_rate)
+
+
+ggplot(att_rate, aes(x= time, y= tolerance, color = as.factor(treat_ind), shape= as.factor(treat_ind))) + geom_line()+geom_point()+theme_bw()+ labs(color = "treated", shape= "treated")
+```
+
+## Question 5 (10 points)
+
+We have defined the treatment and placebo groups based on the condition to which an individual was randomly assigned. However, in the experiment not everyone assigned to the treatment condition received the treatment. Of the 236 individuals who identified themselves at their doors in the treatment group, 185 began the conversation about transphobia rather than refusing to talk at all after identifying themselves and hearing the canvassers' introduction.  In addition, the treatment (conversation about transphobia) was inadvertently delivered to 11 individuals in the placebo group (who were supposed to have a conversation about recycling) due to canvasser error.  
+
+Compute the average difference in the tolerance level (separately for each wave as done in Question 1) among the people assigned to treatment status who actually received the treatment conversation, compared to the people assigned to placebo status who received the placebo conversation. Create a time series graph of the average treatment effects for the subgroup of people assigned to treatment status who actually received the treatment conversation and the people assigned to placebo status who received the placebo conversation compared to the full sample across time.  How do the estimates differ from those computed in Question 1? 
+
+To investigate the validity of these new estimates, compute the proportion of individuals who, among those contacted, actually engaged in the in-person conversation. Does this contact rate vary by whether the respondent is male or female (`vf_female`)? By party (`vf_party`)? By race (`vf_race`)?  What do the results of this analysis imply about (1) the difference between these new estimates and those computed in Question 1 and (2) the internal validity of these new estimates? What does this complication of only some respondents receiving the treatment imply when interpreting the results presented in Question 1? 
+```{r}
+
+#I really, really could not figure this problem out. I worked on it for a long time and what I have down is as far as I could get. 
+summary(transphobia)
+
+treatBL<-mean(transphobia$tolerance.t0[transphobia$treat_ind==1],na.rm = TRUE)
+placeboBL<-mean(transphobia$tolerance.t0[transphobia$treat_ind==0],na.rm = TRUE)
+avg_treat_effect_BL<-placeboBL-treatBL
+avg_treat_effect_BL
+#Avg treatment effect for the baseline outcome is 0.04003847
+
+treatone<-mean(transphobia$tolerance.t1[transphobia$treat_ind==1],na.rm = TRUE)
+placeboTone<-mean(transphobia$tolerance.t1[transphobia$treat_ind==0],na.rm=TRUE)
+avg_treat_effect_T1<-(treatone-placeboTone)
+avg_treat_effect_T1
+#Avg treatment effect for the T1 outcome is 0.1443226
+
+treat2<-mean(transphobia$tolerance.t2[transphobia$treat_ind==1],na.rm = TRUE)
+placeboT2<-mean(transphobia$tolerance.t2[transphobia$treat_ind==0],na.rm=TRUE)
+avg_treat_effect_T2<-(treat2-placeboT2)
+avg_treat_effect_T2
+#Avg treatment effect for the T2 outcome is 0.1173435
+
+treat3<-mean(transphobia$tolerance.t3[transphobia$treat_ind==1],na.rm = TRUE)
+placebo3<-mean(transphobia$tolerance.t3[transphobia$treat_ind==0],na.rm=TRUE)
+avg_treat_effect_T3<-(treat3-placebo3)
+avg_treat_effect_T3
+#Avg treatment effect for the T3 outcome is 0.2469228
+
+treat4<-mean(transphobia$tolerance.t4[transphobia$treat_ind==1],na.rm = TRUE)
+placeboT4<-mean(transphobia$tolerance.t4[transphobia$treat_ind==0],na.rm=TRUE)
+avg_treat_effect_T4<-(treat4-placeboT4)
+avg_treat_effect_T4
+#Avg treatment effect for the T4 outcome is .1762387
+
+
+#I worked on this question for nearly four hours and could not figure it out. This is the closest I got. 
+treat.a<-subset(transphobia,treat_ind==1&transphobia$vf_race=="African American",na.rm=T)
+adm.a<-subset(transphobia,treat_ind==1&treatment.delivered++TRUE&transphobia$vf_race=="African American",na.rm=T)
+nrow(adm.a)/nrow(treat.a)
+
+treat.h<-subset(transphobia,treat_ind==1&transphobia$vf_race=="Hispanic",na.rm=T)
+adm.h<-subset(transphobia,treat_ind==1&treatment.delivered++TRUE&transphobia$vf_race=="Hispanic",na.rm=T)
+nrow(adm.h)/nrow(treat.h)
+
+treat.c<-subset(transphobia,treat_ind==1&transphobia$vf_race=="Caucasian",na.rm=T)
+adm.c<-subset(transphobia,treat_ind==1&treatment.delivered++TRUE&transphobia$vf_race=="Caucasian",na.rm=T)
+nrow(adm.h)/nrow(treat.h)
+```
+
