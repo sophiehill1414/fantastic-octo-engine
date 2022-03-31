@@ -1,0 +1,88 @@
+---
+title: "STAT4101L"
+author: "Sophie Hill"
+date: "12/8/2020"
+output: word_document
+---
+
+```{r}
+#(2) Generate the histogram and boxplot for “GRE” and “GPA”.
+STAT <- read.csv("~/Desktop/STAT.txt", sep="")
+summary(STAT)
+GRE1<-STAT$GRE
+hist(GRE1)
+boxplot(GRE1)
+GPA1<-STAT$GPA
+hist(GPA1)
+boxplot(GPA1)
+```
+
+```{r}
+#(3) Use Shapiro-Wilk test and QQ plot to check the normality of “GRE” and “GPA”.
+library("car")
+qqPlot(STAT$GRE)
+qqPlot(STAT$GPA)
+shapiro.test(STAT$GRE)
+shapiro.test(STAT$GPA)
+```
+```{r}
+#(4) Run logistic regression (response-“admit”, predictors-“GRE” and “GPA”) and explain all the estimated coefficients.
+summary(STAT)
+sapply(STAT, sd)
+Admit1<-factor(STAT$admit)
+Reg<-glm(admit~GRE+GPA,data = STAT,family = "binomial")
+summary(Reg)
+plot(Reg)
+#-The deviance residuals are testing the model fit. The z-scores are testing how far the GRE and GPA scores deviate from the mean. In this case, the z-scores are greater than one for both GRE and GPA, indicating that the scores are higher than the mean. The std. error of the GPA indicates that for every increase of a unit in GPA, the odds of being admitted to a school increases by .754687. The std. error for GRE indicates that for every increase in a unit in GRE, the odds of being admitted to a graduate school increase by .002691. The p-values measure the significance of the result, as indicated by the "signif. codes" section. Both GRE and GPA fall at around .01, meaning that the results are likely statistically significant (but significance of .005 would have been considered very statistically significant). 
+
+```
+```{r}
+#(5)For a new applicant whose GRE and GPA are 650 and 3.4, what is the probability that he/she will get accepted according to your logistic model?
+
+STAT3 <- with(STAT, data.frame(GRE = mean(GRE), GPA = mean(GPA), admit = factor(1:400)))
+predic<-predict(Reg,type = "response")
+newSTAT <- with(STAT, data.frame(GRE = rep(seq(from = 200, to = 800, length.out = 100),
+    4), GPA = rep(seq(from = 0.00,to = 4.00, length.out = 100)), admit = factor(rep(0:1, each = 100))))
+newSTAT3<-cbind(newSTAT,predict(Reg,newdata = newSTAT,type = "link", se=TRUE))
+newSTAT3<-within(newSTAT3,{
+  PredictedProb<-plogis(fit)
+  LL<-plogis(fit-(1.96*se.fit))
+  UL<-plogis(fit+1.96*se.fit)
+})
+head(newSTAT3)
+library(ggplot2)
+ggplot(newSTAT3, aes(x = GRE, y = PredictedProb)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL, fill = admit), alpha = 0.2) + geom_line(aes(colour =admit),
+    size = 1)
+
+#According to this (the above chunk), somewhere between 30-40%. But after spending exorbitant amounts of time doing the wrong thing and only getting somewhat of an answer, I got the actual answer fairly quickly (see below).
+pred1<-data.frame(GRE=650,GPA=3.4)
+pred12<-predict(Reg,pred1,type = "response")
+#~35% chance of being admitted. 
+```
+
+
+```{r}
+#(6) (For graduate students only) Test your model using null deviance and residual deviance.
+#-Not a graduate student, but I did it anyways. 
+
+with(Reg,null.deviance-deviance)
+with(Reg,df.null-df.residual)
+```
+```{r}
+#(7) (For graduate students only) Consider three candidate models (a) admit~GRE (b) admit~GPA (c) admit~GRE+GPA. Which model is the best in terms of Akaike information criterion (AIC)?
+#-I am not a grad student, but I did it anyways. 
+summary(Reg)
+#AIC (admit~GRE+GPA)=486.34
+
+RegGRE<-glm(admit~GRE,data = STAT,family = "binomial")
+summary(RegGRE)
+#AIC (admit~GRE)=490.06
+
+RegGPA<-glm(admit~GPA,data = STAT,family = "binomial")
+summary(RegGPA)
+#AIC (admit~GPA)=490.97
+
+#The model using both GPA and GRE is the best fit. This is the one that had the lowest AIC score, meaning that it fit the criterion the best. 
+```
+

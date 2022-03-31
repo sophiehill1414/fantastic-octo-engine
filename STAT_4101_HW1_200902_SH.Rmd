@@ -1,0 +1,65 @@
+---
+title: "Homework 1"
+author: "Sophie Hill"
+date: "9/2/2020"
+output: word_document
+---
+
+```{r}
+#1. Use R to create a numeric vector of length 10. Calculate the sum, maximum, minimum, mean, variance, and median. (5 points)
+
+v1=c(1,2,3,4,5,6,7,8,9,10)
+length(v1)
+sum(v1)
+max(v1)
+min(v1)
+mean(v1)
+var(v1)
+median(v1)
+```
+
+```{r}
+#2. Use R to create a matrix of dimension (4, 4). Calculate the sum and mean for each row. Calculate the eigenvalues and eigenvectors. Output the first and last column. Output the transpose of your created matrix. (5 points)
+m1=matrix(c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),4,4,byrow = TRUE)
+m1
+dim(m1)
+sum(m1)
+rowMeans(m1)
+rowSums(m1)
+eigen(m1)
+is.matrix(m1)
+m1[,1]
+m1[,4]
+t(m1)
+```
+
+```{r}
+#3. Use R to create a data frame containing both numbers and characters. (3 points)
+COVID_cities=c("Arkansas","California","New York","Nebraska")
+COVID_cities
+COVID_pos_rates=c(8,4,6,2)
+COVID_pos_rates
+COVID_cases1<-data.frame(COVID_cities,COVID_pos_rates)
+COVID_cases1
+
+```
+
+```{r}
+#4. Use R to create a list containing both numbers and characters. (3 points)
+COVID_list<-list(COVID_cities,COVID_pos_rates)
+COVID_list
+```
+
+```{r}
+#5. Use R to create two matrices of same dimension and combine them by row and column, respectively. (4 points)
+b1<-matrix(c(1:10),5,5,byrow = T)
+b2<-matrix(c(20:30),5,5,byrow = T)
+b1
+b2
+b_list<-list(b1,b2)
+b_list
+```
+
+
+
+

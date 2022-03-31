@@ -1,0 +1,39 @@
+---
+title: "Untitled"
+author: "Sophie Hill"
+date: "10/16/2020"
+output: word_document
+---
+```{r}
+#1. If X is a binomial random variable with expected value 6 and variance 2.4, use R to find P{X=4}.
+dbinom(4,6,0.2)
+#Variance=np(1-p)
+#=6p(1-p)
+#P=-1/5 (??), thus, 0.2
+#or dbinom(4,1.66,3.6)
+
+#or,
+dbinom(4,10,.6)
+#mean=6
+#p=.6
+#n=10
+
+
+
+
+
+```
+
+
+```{r}
+#2. If X is normal random variable with expected value 10 and variance 36, use R to find: 
+#(a) P{X<20} (6 points)
+#mean: 10
+pnorm(20,10,6,lower.tail = FALSE)
+#or
+dnorm(20,10,6,log = FALSE)
+
+#(b) P{4<X<16} (8 points)
+pnorm(4,10,6,lower.tail = TRUE)-pnorm(16,10,6,lower.tail = TRUE)
+```
+

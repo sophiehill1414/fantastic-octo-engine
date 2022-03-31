@@ -1,0 +1,52 @@
+---
+title: "Untitled"
+author: "Sophie Hill"
+date: "2/12/2021"
+output: word_document
+---
+
+```{r}
+#Plot house selling price SPRICE against house living area for all houses in the sample.
+df<-read.csv("~/Downloads/df.csv")
+summary(df)
+df$sprice=df$sprice/1000
+SPLmodel<-lm(sprice~livarea,data = df)
+summary(SPLmodel)
+plot(SPLmodel)
+
+#Sprice(hat)=-18.949+8.506Livarea
+#The selling price increases by $8.506 (x1000, I presume) for each additional 100 square feet per house. 
+```
+
+
+
+```{r}
+#Estimate the regression model SPRICE+B1+B2LIVAREA + e for all the houses in the sample. Interpret the estimates. Draw a sketch of the fitted line.
+plot(df$livarea,df$sprice,main="Selling Price vs Living Area",xlab = "Living Area",ylab = "Selling Price",col="blue",pch=18)+abline(SPLmodel)
+```
+```{r}
+#Estimate the quadratic model SPRICE =a1 + a2 LIVAREA^2 + e for all the houses in the sample. What is the marginal effect of an additional 100 square feet of living area for a home with 1500 square feet of living area.
+livarea2<-c(df$livarea^2)
+livarea2<-sapply(df$livarea, function(x)x^2)
+quad.model<-lm(sprice~livarea + livarea2,data = df)
+summary(quad.model)
+#Sprice(hat)=27.41887+.11786Livarea^2, where the marginal effect of an additional 100 square feet for a home with a 1500 square foot space = slope (hat)=[d(Sprice(hat))]/[d(Livarea)] = 2(.11786)(15)=3.53580, or 3535.8.
+#This means that for every 100 square feet added to a 1500 square foot house, the price is expected to increase by $3,535.80. 
+
+
+#Or, is this the correct formula?
+#library("margins")
+#margin<-margins(quad.model)
+#summary(margin)
+#Marginal effect is 3.5632?? ( I think this is wrong, not sure..)
+```
+```{r}
+#Quadratic plot: 
+plot(df$livarea,df$sprice,main="Selling Price vs Living Area",xlab = "Living Area",ylab = "Selling Price",col="blue",pch=20)+abline(quad.model,col="darkgreen") 
+par(new=TRUE)
+b1= coef(quad.model)[1] #fetch the coefficients from the models
+b2= coef(quad.model)[2]
+quad.curve<-curve(b1+b2*x^2,0,30,col="hotpink")   # 0,30 the range of livarea from your plot
+```
+
+

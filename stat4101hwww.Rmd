@@ -1,0 +1,29 @@
+---
+title: "STAT_4101L_HW9"
+author: "Sophie Hill"
+date: "11/13/2020"
+output: word_document
+---
+
+```{r}
+#1. Let 𝑓 (𝑥) = 𝑒^-(x-5)^2
+#(a): Use R to write function f(x). (5 points)
+fx=function(x){
+  y=(exp(1))^-(x-5)^2
+  return(y)
+}
+fx(2)
+#0.0001234098
+fx(4)
+#0.3678794
+
+#(b): Use bisection method to find a root of f(x)-0.2=0. (10 points)
+fx=function(x){
+  y=(exp(1))^-(x-5)^2
+  return(y)
+}
+curve(fx,from=0, to=2, col="red", lwd=2, xlab="x", ylab="f(x)")
+abline(h=0, col="blue", lwd=2, lty=2)
+
+```
+

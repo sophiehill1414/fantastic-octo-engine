@@ -1,0 +1,500 @@
+---
+title: "econ"
+author: "Sophie Hill"
+date: "12/9/2020"
+output: word_document
+---
+install.packages(nnet)
+```{r}
+library(readxl)
+FL <- read_excel("Downloads/new new.xlsx", 
+    sheet = "Florida")
+View(FL)
+
+#Linear Regression:
+sapply(FL, sd)
+Dem1<-factor(FL$Dem)
+FLR<-lm(Dem~Income+Bach+minority,data = FL)
+summary(FLR)
+
+#Logistic Regression:
+FLLR<-glm(Dem~Income+Bach+minority,data = FL,family = "quasibinomial")
+summary(FLLR)
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income decreases by  -0.000006280%. For every unit change (upwards) in "Dem," the odds of having a Bachelors degree increases by 4.311%. For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 2.8%. 
+#Standard error tells us the average distance of the data points from the fitted line. 
+#t-value measures the size of the difference relative to the variation in the sample data. 
+#Z-statistic tests you how far the mean data point is.
+#P-value measures the probability of an observed result assuming that the null hypothesis is true (p-value <.05 = significant).
+#Significant for income and bachelors degrees. 
+#Coefficients:
+plot(FLLR)
+
+#Calculation of Variable Importance:
+library(caret)
+FLfit<-varImp(FLLR,scale=FALSE)
+FLfit
+#Overall
+#<dbl>
+#Income	0.8949318			
+#Bach	6.2280494			
+#minority	5.8223116
+#Bachelors degree is the best variable to predict % increase in Biden votes in Florida.
+
+#Logistic Regression (Dem~Income):
+FLI<-glm(Dem~Income, data = FL,family = "binomial")
+summary(FLI)
+plot(FLI)
+#AIC: 74.826
+
+#Logistic Regression (Dem~Bach):
+FLB<-glm(Dem~Bach, data = FL,family = "binomial")
+summary(FLB)
+plot(FLB)
+#AIC: 70.45
+
+#Logistic Regression (Dem~Minority):
+FLM<-glm(Dem~minority, data = FL,family = "binomial")
+summary(FLM)
+plot(FLM)
+#AIC: 69.137
+
+
+#Minority is likely the best indicator in Florida, Bachelors degree is also a good indicator, income is not a good indicator. 
+#This confirmed through a linear regression, quasibinomial logistic regression, calculation of variable importance, and binomial logistic regression tests to calculate the AIC for each individual variable. 
+```
+
+```{r}
+library(readxl)
+CA <- read_excel("Downloads/new new.xlsx", 
+    sheet = "California")
+View(CA)
+
+#Linear Regression:
+sapply(CA, sd)
+DemCA<-factor(CA$Dem)
+CAL<-lm(Dem~Income+Bach+minority,data = CA)
+summary(CAL)
+plot(CAL)
+
+#Logistic Regression (Dem~Income, Bachelor's Degree, Minority):
+CALR<-glm(Dem~Income+Bach+minority,data = CA,family="quasibinomial")
+summary(CALR)
+plot(CALR)
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income increases by  0.000001063. For every unit change (upwards) in "Dem," the odds of having a Bachelors degree increases by 3.6%. For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 1.2%. 
+
+#Calculation of variable importance:
+library(caret)
+CAfit<-varImp(CALR,scale=FALSE)
+CAfit
+#Overall
+#<dbl>
+#Income	0.1837949			
+#Bach	4.0982068			
+#minority	2.0868719	
+
+#Logistic Regression (Dem~Income):
+CAI<-glm(Dem~Income, data = CA, family = "binomial")
+summary(CAI)
+plot(CAI)
+#AIC=73.211
+
+#Logistic Regression (Dem~Bach):
+CAB<-glm(Dem~Bach, data = CA)
+summary(CAB)
+plot(CAB)
+#AIC=-103.55
+
+#Logistic Regression (Dem~Minority):
+CAM<-glm(Dem~minority, data = CA)
+summary(CAM)
+plot(CAM)
+#AIC=-70.5
+
+#In California, holding of a Bachelor's degree predicts an increased vote in favor of Biden, minority status is a good indicator as well, and income is likely not as good. 
+```
+```{r}
+library(readxl)
+NM <- read_excel("Downloads/new new.xlsx", 
+    sheet = "New Mexico")
+View(NM)
+
+#Linear Regression:
+sapply(NM, sd)
+DemNM<-factor(NM$Dem)
+NML<-lm(Dem~Income+Bach+minority,data = NM)
+summary(NML)
+plot(NML)
+
+#Logistic Regression (Dem~Income, Bachelor's Degree, Minority):
+NMLR<-glm(Dem~Income+Bach+minority,data = NM,family = "quasibinomial")
+summary(NMLR)
+plot(NMLR)
+
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income decreases by  -0.00003063. For every unit change (upwards) in "Dem," the odds of having a Bachelors degree increases by 6.4%. For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 1.99%. 
+
+#Calculation of variable importance:
+library(caret)
+NMfit<-varImp(NMLR,scale=FALSE)
+NMfit
+var
+#Income	3.098414			
+#Bach	4.262085			
+#minority	3.020948			
+
+#Logistic Regression (Dem~Income):
+NMI<-glm(Dem~Income, data = NM,family = "binomial")
+summary(NMI)
+plot(NMI)
+#AIC=48.919
+
+#Logistic Regression (Dem~Bach,family=):
+NMB<-glm(Dem~Bach, data = NM,family="binomial")
+summary(NMB)
+plot(NMB)
+#AIC=46.444
+
+#Logistic Regression (Dem~Minority):
+NMM<-glm(Dem~minority, data = NM,family = "binomial")
+summary(NMM)
+plot(NMM)
+#AIC=47.417
+
+#Therefore, Bachelor's degree is a slightly better indicator than minority status in New Mexico, and income is not as good of an indicator. 
+```
+```{r}
+library(readxl)
+PA <- read_excel("Downloads/new new.xlsx", 
+    sheet = "Pennsylvania ")
+View(PA)
+
+#Linear Regression:
+sapply(PA, sd)
+DemPA<-factor(PA$Dem)
+PAL<-lm(Dem~Income+Bach+minority,data = PA)
+summary(PAL)
+plot(PAL)
+
+#Logistic Regression (Dem~Income, Bachelor's Degree, Minority):
+PALR<-glm(Dem~Income+Bach+minority,data = PA,family = "quasibinomial")
+summary(PALR)
+plot(PALR)
+
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income decreases by -0.000002942 . For every unit change (upwards) in "Dem," the odds of having a Bachelors degree increases by 3.60%. For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 3.9%. 
+
+#Calculation of variable importance:
+library(caret)
+PAfit<-varImp(PALR,scale=FALSE)
+PAfit
+#Income	0.7393604			
+#Bach	6.8310160			
+#minority	10.6936378		
+
+#Logistic Regression (Dem~Income):
+PAI<-glm(Dem~Income, data = PA,family = "binomial")
+summary(PAI)
+plot(PAI)
+#AIC:69.183
+
+#Logistic Regression (Dem~Bach):
+PAB<-glm(Dem~Bach, data = PA,family="binomial")
+summary(PAB)
+plot(PAB)
+#AIC:62.712
+
+#Logistic Regression (Dem~Minority):
+PAM<-glm(Dem~minority, data = PA,family = "binomial")
+summary(PAM)
+plot(PAM)
+#AIC: 61.931
+
+#In PA, Minority status is clearly the best indicator, education is also good, and income is not as good. 
+```
+```{r}
+library(readxl)
+NY <- read_excel("Downloads/new new.xlsx", 
+    sheet = "New York")
+View(NY)
+
+#Linear Regression:
+sapply(NY, sd)
+DemNY<-factor(NY$Dem)
+NYL<-lm(Dem~Income+Bach+minority,data = NY)
+summary(NYL)
+plot(NYL)
+
+#Logistic Regression (Dem~Income, Bachelor's Degree, Minority):
+NYLR<-glm(Dem~Income+Bach+minority,data = NY,family = "quasibinomial")
+summary(NYLR)
+plot(NYLR)
+
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income decreases by 0.00001066. For every unit change (downwards) in "Dem," the odds of having a Bachelors degree increases by -0.02602 For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 1.8%. 
+
+#Calculation of variable importance:
+library(caret)
+NYfit<-varImp(NYLR,scale=FALSE)
+NYfit
+#Income	3.01820900			
+#Bach	0.03354783			
+#minority	1.78650089	
+
+#Logistic Regression (Dem~Income):
+NYI<-glm(Dem~Income, data = NY,family="binomial")
+summary(NYI)
+plot(NYI)
+#AIC: 74.686
+
+#Logistic Regression (Dem~Bach):
+NYB<-glm(Dem~Bach, data = NY,family = "binomial")
+summary(NYB)
+plot(NYB)
+#AIC:79.816
+
+#Logistic Regression (Dem~Minority):
+NYM<-glm(Dem~minority, data = NY,family = "binomial")
+summary(NYM)
+plot(NYM)
+#AIC: 77.988
+
+#Income is likely the best indicator in NY, Minority status is second, Bachelors degree is not as good. 
+#Results between quasibinomial logistic regression, variable confirmation, and individual binomial logistic regressions conflicted
+```
+```{r}
+library(readxl)
+AR <- read_excel("Downloads/new new.xlsx", 
+    sheet = "Arkansas")
+View(AR)
+
+#Linear Regression:
+sapply(AR, sd)
+DemAR<-factor(AR$Dem)
+ARL<-lm(Dem~Income+Bach+minority,data = AR)
+summary(ARL)
+plot(ARL)
+
+#Logistic Regression (Dem~Income, Bachelor's Degree, Minority):
+ARLR<-glm(Dem~Income+Bach+minority,data = AR,family = "quasibinomial")
+summary(ARLR)
+plot(ARLR)
+
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income increases by 0.000001627. For every unit change (downwards) in "Dem," the odds of having a Bachelors degree increases by 1.97% For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 2.84%%. 
+
+#Calculation of variable importance:
+library(caret)
+ARfit<-varImp(ARLR,scale=FALSE)
+ARfit
+#Income	2.819167			
+#Bach	2.950398			
+#minority	21.896552	
+
+#Logistic Regression (Dem~Income):
+ARI<-glm(Dem~Income, data = AR,family = "binomial")
+summary(ARI)
+plot(ARI)
+#AIC:62.805
+
+#Logistic Regression (Dem~Bach):
+ARB<-glm(Dem~Bach, data = AR,family = "binomial")
+summary(ARB)
+plot(ARB)
+#AIC: 63.885
+
+#Logistic Regression (Dem~Minority):
+ARM<-glm(Dem~minority, data = AR,family = "binomial")
+summary(ARM)
+plot(ARM)
+#AIC:54.586
+
+#In Arkansas, minority status prevails. Bachelors degree and income are not nearly as good of indicators as education. 
+```
+```{r}
+library(readxl)
+TX <- read_excel("Downloads/new new.xlsx", 
+    sheet = "Texas ")
+View(TX)
+
+#Linear Regression:
+sapply(TX, sd)
+DemTX<-factor(TX$Dem)
+TXL<-lm(Dem~Income+Bach+minority,data = TX)
+summary(TXL)
+plot(TXL)
+
+#Logistic Regression (Dem~Income, Bachelor's Degree, Minority):
+TXLR<-glm(Dem~Income+Bach+minority,data = TX,family = "quasibinomial")
+summary(TXLR)
+plot(TXLR)
+
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income decreases by -0.000008939. For every unit change (downwards) in "Dem," the odds of having a Bachelors degree increases by 1.33% For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 2.29%%. 
+
+#Calculation of variable importance:
+library(caret)
+TXfit<-varImp(TXLR,scale=FALSE)
+TXfit
+#Income	2.176172			
+#Bach	2.015551			
+#minority	3.808272		
+
+#Logistic Regression (Dem~Income):
+TXI<-glm(Dem~Income, data = TX,family = "binomial")
+summary(TXI)
+plot(TXI)
+#AIC: 190.89
+
+#Logistic Regression (Dem~Bach):
+TXB<-glm(Dem~Bach, data = TX,family = "binomial")
+summary(TXB)
+plot(TXB)
+#AIC:190.91
+
+#Logistic Regression (Dem~Minority):
+TXM<-glm(Dem~minority, data = TX,family = "binomial")
+summary(TXM)
+plot(TXM)
+#AIC:190.22
+```
+```{r}
+library(readxl)
+GA <- read_excel("Downloads/new new.xlsx", 
+    sheet = "Georgia")
+View(GA)
+
+#Linear Regression:
+sapply(GA, sd)
+DemGA<-factor(GA$Dem)
+GAL<-lm(Dem~Income+Bach+minority,data = GA)
+summary(GAL)
+plot(GAL)
+
+#Logistic Regression (Dem~Income, Bachelor's Degree, Minority):
+GALR<-glm(Dem~Income+Bach+minority,data = GA,family = "quasibinomial")
+summary(GALR)
+plot(GALR)
+
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income decreases by -0.000002571. For every unit change (downwards) in "Dem," the odds of having a Bachelors degree increases by 2.93% For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 3.883%%. 
+
+#Calculation of variable importance:
+library(caret)
+GAfit<-varImp(GALR,scale=FALSE)
+GAfit
+#Income	1.149026			
+#Bach	9.665314			
+#minority	35.971787	
+
+
+#Logistic Regression (Dem~Income):
+GAI<-glm(Dem~Income, data = GA,family = "binomial")
+summary(GAI)
+plot(GAI)
+#AIC: 176.91
+
+#Logistic Regression (Dem~Bach):
+GAB<-glm(Dem~Bach, data = GA,family = "binomial")
+summary(GAB)
+plot(GAB)
+#AIC:173.57
+
+#Logistic Regression (Dem~Minority):
+GAM<-glm(Dem~minority, data = GA,family = "binomial")
+summary(GAM)
+plot(GAM)
+#AIC: 134.58
+
+#Minority status is the best indicator, followed by both education, then income. 
+```
+```{r}
+library(readxl)
+IL <- read_excel("Downloads/new new.xlsx", 
+    sheet = "Illinois")
+View(IL)
+
+#Linear Regression:
+sapply(IL, sd)
+DemIL<-factor(GA$Dem)
+ILL<-lm(Dem~Income+Bach+minority,data = IL)
+summary(ILL)
+plot(ILL)
+
+#Logistic Regression (Dem~Income, Bachelor's Degree, Minority):
+ILLR<-glm(Dem~Income+Bach+minority,data = IL,family = "quasibinomial")
+summary(ILLR)
+plot(ILLR)
+
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income increases by 0.000005415 For every unit change (downwards) in "Dem," the odds of having a Bachelors degree increases by 3.11% For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 3.18%%. 
+
+#Calculation of variable importance:
+library(caret)
+ILfit<-varImp(ILLR,scale=FALSE)
+ILfit
+#Income	1.511588			
+#Bach	5.876288			
+#minority	7.148995	
+
+#Logistic Regression (Dem~Income):
+ILI<-glm(Dem~Income, data = IL,family = "binomial")
+summary(ILI)
+plot(ILI)
+#AIC:99.612
+
+#Logistic Regression (Dem~Bach):
+ILB<-glm(Dem~Bach, data = IL,family = "binomial")
+summary(ILB)
+plot(ILB)
+#AIC:89.411
+
+#Logistic Regression (Dem~Minority):
+ILM<-glm(Dem~minority, data = IL,"binomial")
+summary(ILM)
+plot(ILM)
+#AIC:91.637
+
+#Toss up between Minority and Bachelor (based on the variable importance calculation), but leaning towards minority status being the better indicator, and income trailing far behind. 
+```
+```{r}
+library(readxl)
+MI <- read_excel("Downloads/new new.xlsx", 
+    sheet = "Michigan")
+View(MI)
+
+#Linear Regression:
+sapply(MI, sd)
+DemMI<-factor(MI$Dem)
+MIL<-lm(Dem~Income+Bach+minority,data = MI)
+summary(MIL)
+plot(MIL)
+
+#Logistic Regression (Dem~Income, Bachelor's Degree, Minority):
+MILR<-glm(Dem~Income+Bach+minority,data = MI,family = "quasibinomial")
+summary(MILR)
+plot(MILR)
+
+#Estimate: For every unit change (upwards) in "Dem," the odds of having a higher income decreases by -0.00001015 For every unit change (downwards) in "Dem," the odds of having a Bachelors degree increases by 3.81% For every unit change (upwards) in "Dem," the odds of being of a minority status increases by 1.868%%. 
+
+#Calculation of variable importance:
+library(caret)
+MIfit<-varImp(MILR,scale=FALSE)
+MIfit
+#Income	2.802599			
+#Bach	10.206679			
+#minority	6.619105		
+
+#Logistic Regression (Dem~Income):
+MII<-glm(Dem~Income, data = MI,family = "binomial")
+plot(MII)
+summary(MII)
+#AIC: 91.455
+
+#Logistic Regression (Dem~Bach):
+MIB<-glm(Dem~Bach, data = MI,family = "binomial")
+summary(MIB)
+plot(MIB)
+#85.683
+
+#Logistic Regression (Dem~Minority):
+MIM<-glm(Dem~minority, data = MI,family = "binomial")
+summary(MIM)
+plot(MIM)
+#88.401
+
+#True toss up between education and minority status
+```
+
