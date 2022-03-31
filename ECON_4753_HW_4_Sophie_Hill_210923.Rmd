@@ -1,0 +1,94 @@
+---
+title: "Untitled"
+author: "Sophie Hill"
+date: "9/23/2021"
+output: word_document
+---
+
+```{r}
+#Load libraries & import dataset
+library(psych)
+library(stats)
+library(ggplot2)
+library(dplyr)
+library(broom)
+library(ggpubr)
+data <- read.csv("~/Downloads/50_Startups(1).csv")
+
+#Change NA's to 0
+data[is.na(data)] <- 0
+
+#Descriptive statistics & data summary 
+summary<-summary(data)
+summary
+descrip_stats<-describe(data)
+descrip_stats
+
+#Plot Marketing Spend as a function of Profit
+data_plot<-plot(data$Marketing.Spend,xlab = "Marketing Spend",data$Profit,ylab = "Profit")
+
+#Or,
+ggplot1<-ggplot(data,aes(x=Marketing.Spend,y=Profit))+
+  geom_point()+geom_smooth()
+ggplot1
+
+#Determine correlation between Marketing Spend & Profit
+corr1<-cor(data$Marketing.Spend,data$Profit)
+corr1
+```
+
+```{r}
+#Fit linear regression model (Lin_Reg1) for Profit (DV) & R&D Spend (IV)
+Lin_Reg1<-lm(Profit~R.D.Spend,data = data)
+Lin_Reg1
+
+#Linear regression model (Lin_Reg1) Results:
+summary(Lin_Reg1)
+confint(Lin_Reg1)
+
+#Basic Linear Regression Plot:
+plot(Lin_Reg1)
+
+#Linear Regression Plot with fitted regression line
+data_plot2<-ggplot(data,aes(x=R.D.Spend,y=Profit))+
+  geom_point()+geom_abline(col="blue")
+data_plot2
+ggplot2<-data_plot2+geom_smooth(method = "lm",col="hotpink")
+ggplot2
+```
+
+
+```{r}
+
+#Create new variable for R.D.Spend^2
+data$R.D.Spend2<-data$R.D.Spend^2
+
+#Generate quadratic form of independent variable R&D Spend
+Quad_Lin_Reg1<-lm(Profit~R.D.Spend+R.D.Spend2,data = data)
+summary(Quad_Lin_Reg1)
+
+#Plot Quadratic Linear Regression 
+##I did not figure this one out, might be because I am using the wrong "geom()" function for the ggplot to plot the quadratic curve.
+RDPredict<-predict(Quad_Lin_Reg1,R.D.Spend=R.D.Spend,R.D.Spend2=R.D.)
+Figure_2<-plot(data$R.D.Spend,data$Profit)+
+  lines(RDPredict)
+Figure_2
+plot(Quad_Lin_Reg1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
